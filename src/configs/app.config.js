@@ -1,9 +1,9 @@
 const appConfig = {
-  apiPrefix: "http://localhost:4000/",
-  authenticatedEntryPath: "/home",
-  unAuthenticatedEntryPath: "/sign-in",
-  tourPath: "",
-  enableMock: false,
-};
+    apiPrefix: '/api',
+    authenticatedEntryPath: '/app/sales/dashboard',
+    unAuthenticatedEntryPath: '/sign-in',
+    tourPath: '/app/account/kyc-form',
+    enableMock: true
+}
 
-export default appConfig;
+export default appConfig

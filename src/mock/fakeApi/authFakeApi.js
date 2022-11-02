@@ -15,7 +15,7 @@ export default function authFakeApi (server, apiPrefix) {
                 token: 'wVYrxaeNa9OxdnULvde1Au5m5w63'
             }
         }
-        return new Response(401, { some: 'header' }, { message: `userName: admin | password: 123Qwe` })
+        return new Response(401, { some: 'header' }, { message: 'Invalid email or password!' })
     })
 
     server.post(`${apiPrefix}/sign-out`, () => {

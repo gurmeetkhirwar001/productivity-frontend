@@ -10,4 +10,4 @@ export function useTabs() {
     return useContext(TabsContext)
 }
 
-export default TabsContext;
+export default TabsContext
