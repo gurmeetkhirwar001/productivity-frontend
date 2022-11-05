@@ -11,41 +11,48 @@ const unauthorizedCode = [401];
 const BaseService = axios.create({
   timeout: 60000,
   baseURL: "http://localhost:4000",
+  headers:{
+    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiQXBwLXRva2VuIiwiaWF0IjoxNjY1MjE2MzE1fQ.Gw-4o7gRwxkY_l7crZgy3tmYW2fGY74eBslVfNUdMis"
+  }
+});
+export const BaseService2 = axios.create({
+  timeout: 60000,
+  baseURL: appConfig.apiPrefix
 });
 
-BaseService.interceptors.request.use(
-  (config) => {
-    const rawPersistData = localStorage.getItem(PERSIST_STORE_NAME);
-    const persistData = deepParseJson(rawPersistData);
+// BaseService.interceptors.request.use(
+//   (config) => {
+//     // const rawPersistData = localStorage.getItem(PERSIST_STORE_NAME);
+//     // const persistData = deepParseJson(rawPersistData);
 
-    const accessToken = persistData.auth.session.token;
-    const apptoken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiQXBwLXRva2VuIiwiaWF0IjoxNjY1MjE2MzE1fQ.Gw-4o7gRwxkY_l7crZgy3tmYW2fGY74eBslVfNUdMis";
-    if (accessToken) {
-      config.headers[REQUEST_HEADER_AUTH_KEY] = `${TOKEN_TYPE}${accessToken}`;
-    }
-    if (apptoken) {
-      config.headers["token"] = apptoken;
-    }
+//     // const accessToken = persistData.auth.session.token;
+//     const apptoken =
+//       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiQXBwLXRva2VuIiwiaWF0IjoxNjY1MjE2MzE1fQ.Gw-4o7gRwxkY_l7crZgy3tmYW2fGY74eBslVfNUdMis";
+//     // if (accessToken) {
+//     //   config.headers[REQUEST_HEADER_AUTH_KEY] = `${TOKEN_TYPE}${accessToken}`;
+//     // }
+//     if (apptoken) {
+//       config.headers["token"] = apptoken;
+//     }
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+//     return config;
+//   },
+//   (error) => {
+//     return error;
+//   }
+// );
 
-BaseService.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const { response } = error;
+// // BaseService.interceptors.response.use(
+// //   (response) => response,
+// //   (error) => {
+// //     const { response } = error;
 
-    if (response && unauthorizedCode.includes(response.status)) {
-      store.dispatch(onSignOutSuccess());
-    }
+// //     if (response && unauthorizedCode.includes(response.status)) {
+// //       store.dispatch(onSignOutSuccess());
+// //     }
 
-    return Promise.reject(error);
-  }
-);
+// //     return error;
+// //   }
+// // );
 
 export default BaseService;

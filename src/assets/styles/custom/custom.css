@@ -1,0 +1,19 @@
+.invite-form input {
+    margin-top: .6rem;
+}
+
+.invite-form label {
+    font-weight: bold;
+}
+
+.invite-form .btn-container {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.invite-form .btn-container .submit-btn{
+    background-color: #4f46e5;
+    color: #fff;
+}

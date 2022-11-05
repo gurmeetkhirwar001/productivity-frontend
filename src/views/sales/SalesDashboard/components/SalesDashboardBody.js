@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Loading } from 'components/shared'
 import Statistic from './Statistic'
 import SalesReport from './SalesReport'
@@ -7,42 +7,41 @@ import LatestOrder from './LatestOrder'
 import TopProduct from './TopProduct'
 import { getSalesDashboardData } from '../store/dataSlice'
 import { useDispatch, useSelector } from 'react-redux'
-
+import useTeanant from "utils/hooks/useUser";
+import { DefaultBody, encryptMessage } from "utils/common";
 const SalesDashboardBody = () => {
+  const dispatch = useDispatch();
+  const { ListUserTeanants } = useTeanant();
+  const { user } = useSelector((state) => state.auth);
+  const teanant = useSelector((state) => state.user);
+  let List = teanant?.teanantUser?.tenantUserList;
+  useMemo(() => {
+    async function GetList() {
+      const body = {
+        ...DefaultBody,
+        data: {
+          usercode: user?.user_Code,
+        },
+        usercode: user?.user_Code,
+        event: "listusertenant",
+        action: "get",
+      };
+      const encryptybody = encryptMessage(body);
+      const result = await ListUserTeanants({ body: encryptybody });
+      console.log(result, "result");
+    }
+    GetList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-	const dispatch = useDispatch()
-
-	const { 
-		statisticData, 
-		salesReportData,
-		topProductsData,
-		latestOrderData,
-		salesByCategoriesData
-	} = useSelector((state) => state.salesDashboard.data.dashboardData)
-	const loading = useSelector((state) => state.salesDashboard.data.loading)
-
-	useEffect(() => {
-		fetchData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
-	
-	const fetchData = () => {
-		dispatch(getSalesDashboardData())
-	}
-
-	return (
-		<Loading loading={loading}>
-			<Statistic data={statisticData} />
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-				<SalesReport data={salesReportData} className="col-span-2" />
-				<SalesByCategories data={salesByCategoriesData} />
-			</div>
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-				<LatestOrder data={latestOrderData} className="lg:col-span-2" />
-				<TopProduct data={topProductsData}/>
-			</div>
-		</Loading>
-	)
-}
+  return (
+    <Loading loading={false}>
+      <Statistic data={[]} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 ">
+        <LatestOrder data={List} className="lg:col-span-3" />
+      </div>
+    </Loading>
+  );
+};
 
 export default SalesDashboardBody

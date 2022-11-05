@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Input,
   Button,
@@ -15,7 +15,7 @@ import useAuth from "utils/hooks/useAuth";
 import { DefaultBody, encryptMessage } from "utils/common";
 
 const validationSchema = Yup.object().shape({
-  userName: Yup.string().required("Please enter your user name"),
+  useremail: Yup.string().required("Please enter your user name"),
   password: Yup.string().required("Please enter your password"),
   rememberMe: Yup.bool(),
 });
@@ -29,16 +29,19 @@ const SignInForm = (props) => {
   } = props;
 
   const [message, setMessage] = useTimeOutMessage();
-
+  const [data, setData] = useState({
+    userName: "",
+    password: "",
+  });
   const { signIn } = useAuth();
 
   const onSignIn = async (values, setSubmitting) => {
-    const { userName, password } = values;
+    const { useremail, password } = values;
     setSubmitting(true);
     const body = {
       ...DefaultBody,
       data: {
-        useremail: `,${userName},`,
+        useremail: `,${useremail},`,
         userpw: `,${password},`,
       },
       usercode: "136",
@@ -47,7 +50,7 @@ const SignInForm = (props) => {
     };
     const databody = encryptMessage(body);
     const result = await signIn({ body: databody });
-
+    console.log(result.status, "result");
     if (result.status === "failed") {
       setMessage(result.message);
     }
@@ -64,17 +67,20 @@ const SignInForm = (props) => {
       )}
       <Formik
         initialValues={{
-          userName: "admin",
-          password: "123Qwe",
+          useremail: "",
+          password: "",
           rememberMe: true,
         }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
+          console.log(values);
           if (!disableSubmit) {
             onSignIn(values, setSubmitting);
           } else {
             setSubmitting(false);
           }
+
+          // console.log(values, "valuesss");
         }}
       >
         {({ touched, errors, isSubmitting }) => (
@@ -82,8 +88,8 @@ const SignInForm = (props) => {
             <FormContainer>
               <FormItem
                 label="Email"
-                invalid={errors.userName && touched.userName}
-                errorMessage={errors.userName}
+                invalid={errors.useremail && touched.useremail}
+                errorMessage={errors.useremail}
               >
                 <Field
                   type="email"

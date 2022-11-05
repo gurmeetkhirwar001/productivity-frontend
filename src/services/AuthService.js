@@ -1,21 +1,16 @@
 import ApiService from "./ApiService";
+import BaseService from "./BaseService";
 
 export async function apiSignIn(data) {
-  return ApiService.fetchData({
-    url: "/users/signin-user",
-    method: "post",
-    data,
-  });
+  return await BaseService.post("/users/signin-user", data);
 }
 
 export async function apiSignUp(data) {
-  return ApiService.fetchData({
-    url: "/sign-up",
-    method: "post",
-    data,
-  });
+  return await BaseService.post("/users/signup-user", data);
 }
-
+export async function apiValidateUser(data) {
+  return await BaseService.post("/users/validate-user", data);
+}
 export async function apiSignOut(data) {
   return ApiService.fetchData({
     url: "/sign-out",
