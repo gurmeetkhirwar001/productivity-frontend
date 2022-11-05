@@ -10,10 +10,11 @@ const unauthorizedCode = [401];
 
 const BaseService = axios.create({
   timeout: 60000,
-  baseURL: "http://localhost:4000",
-  headers:{
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiQXBwLXRva2VuIiwiaWF0IjoxNjY1MjE2MzE1fQ.Gw-4o7gRwxkY_l7crZgy3tmYW2fGY74eBslVfNUdMis"
-  }
+  baseURL: "http://3.110.127.217:4000",
+  headers: {
+    token:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiQXBwLXRva2VuIiwiaWF0IjoxNjY1MjE2MzE1fQ.Gw-4o7gRwxkY_l7crZgy3tmYW2fGY74eBslVfNUdMis",
+  },
 });
 export const BaseService2 = axios.create({
   timeout: 60000,
