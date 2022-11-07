@@ -148,7 +148,7 @@ export const Search = ({ className }) => {
         <>
             <div 
                 className={classNames(className, 'text-2xl')}
-                onClick={handleSearchOpen}
+                // onClick={handleSearchOpen}
             >
                 <HiOutlineSearch />
             </div>
@@ -167,6 +167,7 @@ export const Search = ({ className }) => {
                                 className="ring-0 outline-none block w-full p-4 text-base bg-transparent text-gray-900 dark:text-gray-100"
                                 placeholder="Search..."
                                 onChange={handleSearch}
+                                
                             />
                         </div>
                         <Button size="xs" onClick={handleSearchClose}>Esc</Button>

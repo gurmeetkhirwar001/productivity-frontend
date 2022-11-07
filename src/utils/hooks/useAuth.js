@@ -11,6 +11,7 @@ import appConfig from "configs/app.config";
 import { REDIRECT_URL_KEY } from "constants/app.constant";
 import { useNavigate } from "react-router-dom";
 import useQuery from "./useQuery";
+import { ADMIN } from "constants/roles.constant";
 
 function useAuth() {
   const dispatch = useDispatch();
@@ -34,7 +35,7 @@ function useAuth() {
         if (resp.data.message.user) {
           dispatch(
             setUser(
-              { email, authority: ["ADMIN"], ...restUser } || {
+              { email, authority: [ADMIN], ...restUser } || {
                 avatar: "",
                 userName: "Anonymous",
                 authority: ["USER"],

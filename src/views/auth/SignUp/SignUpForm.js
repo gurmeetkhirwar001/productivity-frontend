@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Input,
   Button,
@@ -18,78 +18,101 @@ import { useDispatch } from "react-redux";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { DefaultBody, encryptMessage } from "utils/common";
-
+import { useDebounce } from "use-debounce";
 const validationSchema = Yup.object().shape({
-  userName: Yup.string().required("Please enter your user name"),
-  email: Yup.string()
-    .email("Invalid email")
-    .required("Please enter your email"),
-  password: Yup.string().required("Please enter your password"),
+  username: Yup.string().required("Please enter your user name"),
+  userpw: Yup.string()
+    .required("Please enter your password")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      `Must Contain 8 Characters,
+       One Uppercase, One Lowercase, 
+       One Number and 
+       One Special Case Character`
+    ),
+  confirmpassword: Yup.string().oneOf(
+    [Yup.ref("userpw"), null],
+    "Passwords must match"
+  ),
 });
 
 const SignUpForm = (props) => {
   const { disableSubmit = false, className, signInUrl = "/sign-in" } = props;
   const [open, setOpen] = useState(false);
+  const [emailMessage, setEmailMessage] = useState("");
   const dispatch = useDispatch();
-
+  const [email, setEmail] = useState("");
+  const [value] = useDebounce(email, 1000);
   const navigate = useNavigate();
-
+  const [textColor, setTextColor] = useState("green");
   const [message, setMessage] = useTimeOutMessage();
-
-  const onSignUp = async (values, setSubmitting) => {
-    const { useremail, userpw, username, usermobile } = values;
-    setSubmitting(true);
-    try {
-      console.log("sumitined values");
+  useEffect(() => {
+    async function validateUser(value) {
+      console.log(value, "value");
       const validatedbody = {
         ...DefaultBody,
-        data: { useremail: useremail },
+        data: { useremail: value },
         usercode: 136,
         event: "validateuser",
         action: "get",
       };
-
+      const encryptedValidatedbody = encryptMessage(validatedbody);
+      try {
+        if (value !== "") {
+          const validateresp = await apiValidateUser({
+            body: encryptedValidatedbody,
+          });
+          setEmailMessage(validateresp.data.message);
+          setTextColor("green");
+        }
+      } catch (e) {
+        console.log(e.response.data.message, "errrr");
+        setTextColor("red");
+        setEmailMessage(e.response.data.message);
+      }
+    }
+    validateUser(value);
+  }, [value]);
+  const onSignUp = async (values, setSubmitting, resetForm) => {
+    console.log("jjsjsjs callings")
+    const { useremail, userpw, username, usermobile } = values;
+    setSubmitting(true);
+    try {
       const signupBody = {
         ...DefaultBody,
         data: {
-          useremail: `,${useremail},`,
+          useremail: `${email}`,
           userpw: `${userpw}`,
-          usermobile: `,${usermobile},`,
-          userename: `,${username},`,
+          usermobile: `${usermobile}`,
+          userename: ``,
         },
         usercode: 136,
         event: "signupuser",
         action: "create",
       };
-      const encryptedValidatedbody = encryptMessage(validatedbody);
+
       const encryptedSignupbody = encryptMessage(signupBody);
-      const validateresp = await apiValidateUser({
-        body: encryptedValidatedbody,
-      });
-      if (validateresp?.data?.is_success == true) {
-        const resp = await apiSignUp({ body: encryptedSignupbody });
-        if (resp.data) {
-          setSubmitting(false);
-          const { token } = resp.data;
-          dispatch(onSignInSuccess(token));
-          if (resp.data.user) {
-            dispatch(
-              setUser(
-                resp.data.user || {
-                  avatar: "",
-                  userName: "Anonymous",
-                  authority: ["USER"],
-                  email: "",
-                }
-              )
-            );
-          }
-          setMessage("User Register SuccessFully");
-          setOpen(false);
-          //   navigate(appConfig.tourPath);
+      const resp = await apiSignUp({ body: encryptedSignupbody });
+      if (resp.data) {
+        setSubmitting(false);
+        const { token } = resp.data;
+        dispatch(onSignInSuccess(token));
+        if (resp.data.user) {
+          dispatch(
+            setUser(
+              resp.data.user || {
+                avatar: "",
+                userName: "Anonymous",
+                authority: ["USER"],
+                email: "",
+              }
+            )
+          );
         }
-      } else {
-        setMessage("Email Already Exist");
+        setMessage("User Register SuccessFully");
+        setOpen(true);
+        resetForm()
+        //   navigate(appConfig.tourPath);
       }
     } catch (errors) {
       setMessage(errors?.response?.data?.message || errors.toString());
@@ -108,14 +131,13 @@ const SignUpForm = (props) => {
         initialValues={{
           username: "",
           userpw: "",
-          useremail: "",
           usermobile: "",
         }}
-        // validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting }) => {
+        validationSchema={validationSchema}
+        onSubmit={(values, { setSubmitting, resetForm }) => {
           console.log(values);
           if (!disableSubmit) {
-            onSignUp(values, setSubmitting);
+            onSignUp(values, setSubmitting, resetForm);
           } else {
             setSubmitting(false);
           }
@@ -142,13 +164,11 @@ const SignUpForm = (props) => {
                 invalid={errors.useremail && touched.useremail}
                 errorMessage={errors.useremail}
               >
-                <Field
-                  type="email"
-                  autoComplete="off"
+                <Input
+                  onChange={(e) => setEmail(e.target.value)}
                   name="useremail"
-                  placeholder="Email"
-                  component={Input}
                 />
+                <p style={{ color: textColor }}>{emailMessage}</p>
               </FormItem>
               <FormItem
                 label="Password"
@@ -158,6 +178,18 @@ const SignUpForm = (props) => {
                 <Field
                   autoComplete="off"
                   name="userpw"
+                  placeholder="Password"
+                  component={PasswordInput}
+                />
+              </FormItem>
+              <FormItem
+                label="Confirm Password"
+                invalid={errors.confirmpassword && touched.confirmpassword}
+                errorMessage={errors.confirmpassword}
+              >
+                <Field
+                  autoComplete="off"
+                  name="confirmpassword"
                   placeholder="Password"
                   component={PasswordInput}
                 />

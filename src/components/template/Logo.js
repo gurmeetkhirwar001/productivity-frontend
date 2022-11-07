@@ -18,22 +18,29 @@ const Logo = props => {
 	} = props
 
 	return (
-		<div 
-			className={classNames('logo', className, gutter)} 
-			style={
-				{
-					...style,
-					...{width: logoWidth}
-				}
-			}
-		>
-			<img 
-				className={imgClass} 
-				src={`${LOGO_SRC_PATH}logo-${mode}-${type}.png`} 
-				alt={`${APP_NAME} logo`}
-			/>
-		</div>
-	)
+    <div
+      className={classNames("logo", className, gutter)}
+      style={{
+        ...style,
+        ...{ width: logoWidth },
+        display: "flex",
+        justifyContent: "center",
+        alignContent: "center",
+        verticalAlign: "center",
+      }}
+    >
+      <img
+        className={imgClass}
+        src={`/img/logo/logo.jpg`}
+        alt={`${APP_NAME} logo`}
+        style={{
+          borderRadius: "50px",
+          width: 80,
+        }}
+      />
+      {/* Productivity */}
+    </div>
+  );
 }
 
 Logo.defaultProps = {

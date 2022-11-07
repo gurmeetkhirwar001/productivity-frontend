@@ -36,7 +36,7 @@ const FormItem = React.forwardRef((props, ref) => {
             case LAYOUT.HORIZONTAL:
                 return label ? `h-${CONTROL_SIZES[formItemLabelHeight]} ${label && 'ltr:pr-2 rtl:pl-2'}` : 'ltr:pr-2 rtl:pl-2'
             case LAYOUT.VERTICAL:
-                return `mb-2`
+                return `mb-2 mt-2`
             case LAYOUT.INLINE:
                 return `h-${CONTROL_SIZES[formItemLabelHeight]} ${label && 'ltr:pr-2 rtl:pl-2'}`
             default:
@@ -65,7 +65,7 @@ const FormItem = React.forwardRef((props, ref) => {
         return {...style}
     }
 
-    const enterStyle = { opacity: 1, marginTop: 3, bottom: -21}
+    const enterStyle = { opacity: 1, marginTop: 3, bottom: -41}
 	const exitStyle = { opacity: 0, marginTop: -10}
 	const initialStyle =  exitStyle
 

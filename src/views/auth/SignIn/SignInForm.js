@@ -41,8 +41,8 @@ const SignInForm = (props) => {
     const body = {
       ...DefaultBody,
       data: {
-        useremail: `,${useremail},`,
-        userpw: `,${password},`,
+        useremail: `${useremail}`,
+        userpw: `${password}`,
       },
       usercode: "136",
       event: "signinuser",

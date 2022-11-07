@@ -6,10 +6,10 @@ import docNavigationConfig from './doc.navigation.config'
 
 const navigationConfig = [
     ...appsNavigationConfig,
-    ...uiComponentNavigationConfig,
-    ...pagesNavigationConfig,
+    // ...uiComponentNavigationConfig,
+    // ...pagesNavigationConfig,
     ...authNavigationConfig,
-    ...docNavigationConfig
+    // ...docNavigationConfig
 ]
 
 export default navigationConfig
