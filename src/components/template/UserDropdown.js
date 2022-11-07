@@ -16,51 +16,65 @@ const dropdownItemList = [
 
 export const UserDropdown = ({ className }) => {
 
-	const { avatar, userName, authority, email } = useSelector((state) => state.auth.user)
+	const { avatar, userName, authority, useremail } = useSelector(
+    (state) => state.auth.user
+  );
+  const admin = localStorage.getItem("admin");
+  const User = JSON.parse(JSON.parse(admin).auth).user;
+  console.log(User);
+  const { signOut } = useAuth();
 
-	const { signOut } = useAuth()
+  const UserAvatar = (
+    <div className={classNames(className, "flex items-center gap-2")}>
+      <Avatar size={32} shape="circle" src={"/img/avatars/thumb-1.jpg"} />
+      <div className="hidden md:block">
+        <div className="text-xs capitalize">{authority[0] || "guest"}</div>
+        <div className="font-bold">{User.user_Name}</div>
+      </div>
+    </div>
+  );
 
-	const UserAvatar = (
-		<div className={classNames(className, 'flex items-center gap-2')}>
-			<Avatar size={32} shape="circle" src={avatar} />
-			<div className="hidden md:block">
-				<div className="text-xs capitalize">{authority[0] || 'guest'}</div>
-				<div className="font-bold">{userName}</div>
-			</div>
-		</div>
-	)
-
-	return (
-		<div>
-			<Dropdown menuStyle={{minWidth: 240}} renderTitle={UserAvatar} placement="bottom-end">
-				<Dropdown.Item variant="header">
-					<div className="py-2 px-3 flex items-center gap-2">
-						<Avatar shape="circle" src={avatar} />
-						<div>
-							<div className="font-bold text-gray-900 dark:text-gray-100">{userName}</div>
-							<div className="text-xs">{email}</div>
-						</div>
-					</div>
-				</Dropdown.Item>
-				<Dropdown.Item variant="divider" />
-				{dropdownItemList.map(item => (
-					<Dropdown.Item eventKey={item.label} key={item.label} className="mb-1">
-						<Link className="flex gap-2 items-center" to={item.path}>
-							<span className="text-xl opacity-50">{item.icon}</span>
-							<span>{item.label}</span>
-						</Link>
-					</Dropdown.Item>
-				))}
-				<Dropdown.Item variant="divider" />
-				<Dropdown.Item onClick={signOut} eventKey="Sign Out" className="gap-2">
-					<span className="text-xl opacity-50">
-						<HiOutlineLogout />
-					</span>
-					<span>Sign Out</span>
-				</Dropdown.Item>
-			</Dropdown>
-		</div>
-	)
+  return (
+    <div>
+      <Dropdown
+        menuStyle={{ minWidth: 240 }}
+        renderTitle={UserAvatar}
+        placement="bottom-end"
+      >
+        <Dropdown.Item variant="header">
+          <div className="py-2 px-3 flex items-center gap-2">
+            <Avatar shape="circle" src={"/img/avatars/thumb-1.jpg"} />
+            <div>
+              <div className="font-bold text-gray-900 dark:text-gray-100">
+                {User.user_Name}
+              </div>
+              <div className="text-xs">{User.user_Email}</div>
+            </div>
+          </div>
+        </Dropdown.Item>
+        <Dropdown.Item variant="divider" />
+        {dropdownItemList.map((item) => (
+          <Dropdown.Item
+            eventKey={item.label}
+            key={item.label}
+            className="mb-1"
+          >
+            <Link className="flex gap-2 items-center" to={item.path}>
+              <span className="text-xl opacity-50">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          </Dropdown.Item>
+        ))}
+        <Dropdown.Item variant="divider" />
+        <Dropdown.Item onClick={signOut} eventKey="Sign Out" className="gap-2">
+          <span className="text-xl opacity-50">
+            <HiOutlineLogout />
+          </span>
+          <span>Sign Out</span>
+        </Dropdown.Item>
+      </Dropdown>
+    </div>
+  );
 }
 
 export default withHeaderItem(UserDropdown)
