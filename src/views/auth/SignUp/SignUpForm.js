@@ -74,7 +74,7 @@ const SignUpForm = (props) => {
     validateUser(value);
   }, [value]);
   const onSignUp = async (values, setSubmitting, resetForm) => {
-    console.log("jjsjsjs callings")
+    console.log("jjsjsjs callings");
     const { useremail, userpw, username, usermobile } = values;
     setSubmitting(true);
     try {
@@ -111,7 +111,7 @@ const SignUpForm = (props) => {
         }
         setMessage("User Register SuccessFully");
         setOpen(true);
-        resetForm()
+        resetForm();
         //   navigate(appConfig.tourPath);
       }
     } catch (errors) {
@@ -214,6 +214,13 @@ const SignUpForm = (props) => {
               >
                 {isSubmitting ? "Creating Account..." : "Sign Up"}
               </Button>
+              <div className="social-link">
+                <img src="/img/social/google.png" />
+                <img src="/img/social/fb.png" />
+                <img src="/img/social/saml.png" />
+                <img src="/img/social/aplelogo.png" />
+                <img src="/img/social/azure.png" />
+              </div>
               <div className="mt-4 text-center">
                 <span>Already have an account? </span>
                 <ActionLink to={signInUrl}>Sign in</ActionLink>

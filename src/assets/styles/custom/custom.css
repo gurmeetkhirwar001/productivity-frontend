@@ -13,7 +13,20 @@
     align-items: center;
 }
 
-.invite-form .btn-container .submit-btn{
+.invite-form .btn-container .submit-btn {
     background-color: #4f46e5;
     color: #fff;
+}
+
+.social-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.social-link img {
+    width: 30px;
+    height: 30px;
+    margin-left: .8rem
 }

@@ -128,6 +128,13 @@ const SignInForm = (props) => {
               >
                 {isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
+              <div className="social-link">
+                <img src="/img/social/google.png" />
+                <img src="/img/social/fb.png" />
+                <img src="/img/social/saml.png" />
+                <img src="/img/social/aplelogo.png" />
+                <img src="/img/social/azure.png" />
+              </div>                                                                                                                                                                                                                                                                   
               <div className="mt-4 text-center">
                 <span>Don't have an account yet? </span>
                 <ActionLink to={signUpUrl}>Sign up</ActionLink>
