@@ -34,6 +34,7 @@ const VerticalMenuContent = props => {
 	}, [activedRoute?.parentKey])
 
 	const handleLinkClick = () => {
+		console.log("clicked");
 		onMenuItemClick?.()
 	}
 

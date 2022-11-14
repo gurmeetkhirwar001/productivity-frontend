@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useEffect, useState } from "react";
 import {
   Input,
@@ -7,6 +9,8 @@ import {
   Alert,
   Dialog,
 } from "components/ui";
+import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { PublicClientApplication } from "@azure/msal-browser";
 import { PasswordInput, ActionLink } from "components/shared";
 import { onSignInSuccess } from "store/auth/sessionSlice";
 import { setUser } from "store/auth/userSlice";
@@ -14,11 +18,17 @@ import { apiSignUp, apiValidateUser } from "services/AuthService";
 import appConfig from "configs/app.config";
 import useTimeOutMessage from "utils/hooks/useTimeOutMessage";
 import { useNavigate } from "react-router-dom";
+import { MsalProvider, useMsal } from "@azure/msal-react";
+import { msalConfig } from "../Azurelogin/authconfig";
 import { useDispatch } from "react-redux";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { DefaultBody, encryptMessage } from "utils/common";
 import { useDebounce } from "use-debounce";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import jwtDecode from "jwt-decode";
+import useAuth from "utils/hooks/useAuth";
+import AzureLogin from "../Azurelogin";
 const validationSchema = Yup.object().shape({
   username: Yup.string().required("Please enter your user name"),
   userpw: Yup.string()
@@ -46,6 +56,8 @@ const SignUpForm = (props) => {
   const navigate = useNavigate();
   const [textColor, setTextColor] = useState("green");
   const [message, setMessage] = useTimeOutMessage();
+  const { signIn } = useAuth();
+  const msalInstance = new PublicClientApplication(msalConfig);
   useEffect(() => {
     async function validateUser(value) {
       console.log(value, "value");
@@ -119,7 +131,21 @@ const SignUpForm = (props) => {
       setSubmitting(false);
     }
   };
-
+  const HandleSuccessLogin = async (res, source) => {
+    signIn(res, "sso");
+  };
+  const HandleFacebookLogin = async (res, source) => {
+    signIn(
+      {
+        token: res.accessToken,
+        email: res.email,
+        avatar: res.picture.data.url,
+        userName: res.name,
+      },
+      "sso",
+      source
+    );
+  };
   return (
     <div className={className}>
       {message && (
@@ -215,11 +241,38 @@ const SignUpForm = (props) => {
                 {isSubmitting ? "Creating Account..." : "Sign Up"}
               </Button>
               <div className="social-link">
-                <img src="/img/social/google.png" />
-                <img src="/img/social/fb.png" />
+                <GoogleOAuthProvider
+                  clientId="436505811511-7o0gn8mvbf2oi3de520ot4b0ldjmlfkm.apps.googleusercontent.com"
+                  onScriptLoadSuccess={(res) => console.log(res)}
+                  onScriptLoadError={(err) => console.log(err)}
+                >
+                  <GoogleLogin
+                    type="icon"
+                    onSuccess={(res) =>
+                      HandleSuccessLogin(res.credential, "google")
+                    }
+                    onError={(err) => console.log(err)}
+                    style={{
+                      border: "none",
+                    }}
+                  />
+                </GoogleOAuthProvider>
+                <FacebookLogin
+                  appId="249497466337900"
+                  fields="email, name, picture"
+                  callback={(res) => HandleFacebookLogin(res, "facebook")}
+                  render={(renderProps) => (
+                    <img
+                      src="/img/social/fb.png"
+                      onClick={renderProps.onClick}
+                    />
+                  )}
+                />
                 <img src="/img/social/saml.png" />
                 <img src="/img/social/aplelogo.png" />
-                <img src="/img/social/azure.png" />
+                <MsalProvider instance={msalInstance}>
+                  <AzureLogin />
+                </MsalProvider>
               </div>
               <div className="mt-4 text-center">
                 <span>Already have an account? </span>

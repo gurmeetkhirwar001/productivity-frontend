@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from "react";
 import {
   Input,
@@ -12,8 +13,13 @@ import useTimeOutMessage from "utils/hooks/useTimeOutMessage";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import useAuth from "utils/hooks/useAuth";
+import { msalConfig } from "../Azurelogin/authconfig";
 import { DefaultBody, encryptMessage } from "utils/common";
-
+import { PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider, useMsal } from "@azure/msal-react";
+import AzureLogin from "../Azurelogin";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
 const validationSchema = Yup.object().shape({
   useremail: Yup.string().required("Please enter your user name"),
   password: Yup.string().required("Please enter your password"),
@@ -27,7 +33,7 @@ const SignInForm = (props) => {
     forgotPasswordUrl = "/forgot-password",
     signUpUrl = "/sign-up",
   } = props;
-
+  const msalInstance = new PublicClientApplication(msalConfig);
   const [message, setMessage] = useTimeOutMessage();
   const [data, setData] = useState({
     userName: "",
@@ -57,7 +63,21 @@ const SignInForm = (props) => {
 
     setSubmitting(false);
   };
-
+  const HandleSuccessLogin = async (res, source) => {
+    signIn(res, "sso", source);
+  };
+  const HandleFacebookLogin = async (res, source) => {
+    signIn(
+      {
+        token: res.accessToken,
+        email: res.email,
+        avatar: res.picture.data.url,
+        userName: res.name,
+      },
+      "sso",
+      source
+    );
+  };
   return (
     <div className={className}>
       {message && (
@@ -129,12 +149,39 @@ const SignInForm = (props) => {
                 {isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
               <div className="social-link">
-                <img src="/img/social/google.png" />
-                <img src="/img/social/fb.png" />
+                <GoogleOAuthProvider
+                  clientId="436505811511-7o0gn8mvbf2oi3de520ot4b0ldjmlfkm.apps.googleusercontent.com"
+                  onScriptLoadSuccess={(res) => console.log(res)}
+                  onScriptLoadError={(err) => console.log(err)}
+                >
+                  <GoogleLogin
+                    type="icon"
+                    onSuccess={(res) =>
+                      HandleSuccessLogin(res.credential, "google")
+                    }
+                    onError={(err) => console.log(err)}
+                    style={{
+                      border: "none",
+                    }}
+                  />
+                </GoogleOAuthProvider>
+                <FacebookLogin
+                  appId="249497466337900"
+                  fields="email, name, picture"
+                  callback={(res) => HandleFacebookLogin(res, "facebook")}
+                  render={(renderProps) => (
+                    <img
+                      src="/img/social/fb.png"
+                      onClick={renderProps.onClick}
+                    />
+                  )}
+                />
                 <img src="/img/social/saml.png" />
                 <img src="/img/social/aplelogo.png" />
-                <img src="/img/social/azure.png" />
-              </div>                                                                                                                                                                                                                                                                   
+                <MsalProvider instance={msalInstance}>
+                  <AzureLogin />
+                </MsalProvider>
+              </div>
               <div className="mt-4 text-center">
                 <span>Don't have an account yet? </span>
                 <ActionLink to={signUpUrl}>Sign up</ActionLink>

@@ -16,7 +16,7 @@ const dropdownItemList = [
 
 export const UserDropdown = ({ className }) => {
 
-	const { avatar, userName, authority, useremail } = useSelector(
+	const { avatar, name, userName, authority, email } = useSelector(
     (state) => state.auth.user
   );
   const admin = localStorage.getItem("admin");
@@ -26,10 +26,14 @@ export const UserDropdown = ({ className }) => {
 
   const UserAvatar = (
     <div className={classNames(className, "flex items-center gap-2")}>
-      <Avatar size={32} shape="circle" src={"/img/avatars/thumb-1.jpg"} />
+      <Avatar
+        size={32}
+        shape="circle"
+        src={avatar ? avatar : "/img/avatars/thumb-1.jpg"}
+      />
       <div className="hidden md:block">
-        <div className="text-xs capitalize">{authority[0] || "guest"}</div>
-        <div className="font-bold">{User.user_Name}</div>
+        {/* <div className="text-xs capitalize">{authority[0] || "guest"}</div> */}
+        <div className="font-bold">{userName ? userName : User.user_Name}</div>
       </div>
     </div>
   );
@@ -43,12 +47,15 @@ export const UserDropdown = ({ className }) => {
       >
         <Dropdown.Item variant="header">
           <div className="py-2 px-3 flex items-center gap-2">
-            <Avatar shape="circle" src={"/img/avatars/thumb-1.jpg"} />
+            <Avatar
+              shape="circle"
+              src={avatar ? avatar : "/img/avatars/thumb-1.jpg"}
+            />
             <div>
               <div className="font-bold text-gray-900 dark:text-gray-100">
-                {User.user_Name}
+              <div className="font-bold">{userName ? userName : User.user_Name}</div>
               </div>
-              <div className="text-xs">{User.user_Email}</div>
+              <div className="text-xs">{email ? email : User.user_Email}</div>
             </div>
           </div>
         </Dropdown.Item>

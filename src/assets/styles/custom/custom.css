@@ -30,3 +30,11 @@
     height: 30px;
     margin-left: .8rem
 }
+.nsm7Bb-HzV7m-LgbsSe {
+    border: none !important;
+}
+
+.cloud-connect-container {
+    display: flex;
+    justify-content: space-between;
+}

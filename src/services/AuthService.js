@@ -4,6 +4,9 @@ import BaseService from "./BaseService";
 export async function apiSignIn(data) {
   return await BaseService.post("/users/signin-user", data);
 }
+export async function apiSocial(data) {
+  return await BaseService.post("/users/social-signup", data);
+}
 
 export async function apiSignUp(data) {
   return await BaseService.post("/users/signup-user", data);
