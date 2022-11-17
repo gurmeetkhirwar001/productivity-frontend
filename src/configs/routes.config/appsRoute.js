@@ -242,6 +242,18 @@ const appsRoute = [
     component: React.lazy(() => import("views/cloudstorage/dropbox")),
     authority: [ADMIN, USER],
   },
+  {
+    key: "appsCalendar.googlecalendar",
+    path: `${APP_PREFIX_PATH}/Calendar/GoogleCalendar`,
+    component: React.lazy(() => import("views/Calendar/GoogleCalendar")),
+    authority: [ADMIN, USER],
+  },
+  {
+    key: "appsCalendar.outlookcalendar",
+    path: `${APP_PREFIX_PATH}/Calendar/OutlookCalendar`,
+    component: React.lazy(() => import("views/Calendar/OutlookCalendar")),
+    authority: [ADMIN, USER],
+  },
 ];
 
 export default appsRoute

@@ -29,8 +29,9 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import jwtDecode from "jwt-decode";
 import useAuth from "utils/hooks/useAuth";
 import AzureLogin from "../Azurelogin";
+import isDisabled from "components/ui/DatePicker/tables/components/props/isDisabled";
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required("Please enter your user name"),
+  // username: Yup.string().required("Please enter your user name"),
   userpw: Yup.string()
     .required("Please enter your password")
     .matches(
@@ -40,10 +41,9 @@ const validationSchema = Yup.object().shape({
        One Number and 
        One Special Case Character`
     ),
-  confirmpassword: Yup.string().oneOf(
-    [Yup.ref("userpw"), null],
-    "Passwords must match"
-  ),
+  confirmpassword: Yup.string()
+    .oneOf([Yup.ref("userpw"), null], "Passwords must match")
+    .required("Please enter your confirm password"),
 });
 
 const SignUpForm = (props) => {
@@ -56,6 +56,14 @@ const SignUpForm = (props) => {
   const navigate = useNavigate();
   const [textColor, setTextColor] = useState("green");
   const [message, setMessage] = useTimeOutMessage();
+  const [formEnable, setFormEnable] = useState(true);
+  const [formValues, setFormValues] = useState({
+    username: "",
+    userpw: "",
+    usermobile: "",
+  });
+  const [emailverificationSuccess, setEmailVerificationSuccess] =
+    useState(false);
   const { signIn } = useAuth();
   const msalInstance = new PublicClientApplication(msalConfig);
   useEffect(() => {
@@ -76,15 +84,24 @@ const SignUpForm = (props) => {
           });
           setEmailMessage(validateresp.data.message);
           setTextColor("green");
+          setEmailVerificationSuccess(true);
         }
       } catch (e) {
         console.log(e.response.data.message, "errrr");
         setTextColor("red");
         setEmailMessage(e.response.data.message);
+        setEmailVerificationSuccess(false);
       }
     }
+    async function formSubmissionCheck() {
+      console.log(await validationSchema.isValid());
+      if ((await validationSchema.isValid()) && emailverificationSuccess) {
+        setFormEnable(false);
+      }
+    }
+    formSubmissionCheck();
     validateUser(value);
-  }, [value]);
+  }, [value, emailverificationSuccess]);
   const onSignUp = async (values, setSubmitting, resetForm) => {
     console.log("jjsjsjs callings");
     const { useremail, userpw, username, usermobile } = values;
@@ -93,16 +110,16 @@ const SignUpForm = (props) => {
       const signupBody = {
         ...DefaultBody,
         data: {
-          useremail: `${email}`,
-          userpw: `${userpw}`,
-          usermobile: `${usermobile}`,
-          userename: ``,
+          useremail: email,
+          userpw: userpw,
+          usermobile: usermobile,
+          userename: email,
         },
         usercode: 136,
         event: "signupuser",
         action: "create",
       };
-
+      console.log(signupBody, "Bodyyy");
       const encryptedSignupbody = encryptMessage(signupBody);
       const resp = await apiSignUp({ body: encryptedSignupbody });
       if (resp.data) {
@@ -146,6 +163,7 @@ const SignUpForm = (props) => {
       source
     );
   };
+  console.log(formValues, "formvalues");
   return (
     <div className={className}>
       {message && (
@@ -169,10 +187,11 @@ const SignUpForm = (props) => {
           }
         }}
       >
-        {({ touched, errors, isSubmitting }) => (
+        {({ touched, errors, isSubmitting, isValid, dirty }) => (
           <Form>
+            {console.log(isValid, "isvalid", dirty)}
             <FormContainer>
-              <FormItem
+              {/* <FormItem
                 label="User Name"
                 invalid={errors.username && touched.username}
                 errorMessage={errors.username}
@@ -184,7 +203,7 @@ const SignUpForm = (props) => {
                   placeholder="User Name"
                   component={Input}
                 />
-              </FormItem>
+              </FormItem> */}
               <FormItem
                 label="Email"
                 invalid={errors.useremail && touched.useremail}
@@ -235,6 +254,9 @@ const SignUpForm = (props) => {
               <Button
                 block
                 loading={isSubmitting}
+                disabled={
+                  !(isValid && dirty && emailverificationSuccess !== false)
+                }
                 variant="solid"
                 type="submit"
               >
@@ -258,7 +280,7 @@ const SignUpForm = (props) => {
                   />
                 </GoogleOAuthProvider>
                 <FacebookLogin
-                  appId="249497466337900"
+                  appId="1268308690567775"
                   fields="email, name, picture"
                   callback={(res) => HandleFacebookLogin(res, "facebook")}
                   render={(renderProps) => (
@@ -267,9 +289,10 @@ const SignUpForm = (props) => {
                       onClick={renderProps.onClick}
                     />
                   )}
+                  redirectUri={window.location.host}
                 />
-                <img src="/img/social/saml.png" />
-                <img src="/img/social/aplelogo.png" />
+                {/* <img src="/img/social/saml.png" />
+                <img src="/img/social/aplelogo.png" /> */}
                 <MsalProvider instance={msalInstance}>
                   <AzureLogin />
                 </MsalProvider>

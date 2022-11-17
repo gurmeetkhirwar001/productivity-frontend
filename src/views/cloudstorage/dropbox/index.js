@@ -23,7 +23,7 @@ export default function DropboxFetch() {
         const body = {
           code,
           grant_type: "authorization_code",
-          redirect_uri: `http://localhost:3000${window.location.pathname}`,
+          redirect_uri: `${window.location.protocol}//${window.location.host}${window.location.pathname}`,
           //   response_type: "token",
         };
         await DropboxAuthToken(body);
@@ -50,7 +50,7 @@ export default function DropboxFetch() {
   }, [DropboxAuthToken]);
   const AuthorizeDropBox = () => {
     window.location.replace(
-      `https://www.dropbox.com/oauth2/authorize?client_id=${process.env.REACT_APP_DROPBOX_CLIENTID}&redirect_uri=http://localhost:3000${window.location.pathname}&response_type=code`
+      `https://www.dropbox.com/oauth2/authorize?client_id=${process.env.REACT_APP_DROPBOX_CLIENTID}&redirect_uri=${window.location.protocol}//${window.location.host}${window.location.pathname}&response_type=code`
     );
   };
   return (

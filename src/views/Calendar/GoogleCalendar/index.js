@@ -1,23 +1,20 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "components/ui";
+import CommonCalendar from "../CommonCalendar";
 import { gapi } from "gapi-script";
-import DriveFiles from "./driveFiles";
 import useCloud from "utils/hooks/useCloud";
+
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
 const scopes = "https://www.googleapis.com/auth/drive";
-export default function GoogleDriveFetch() {
+export default function GoogleCalendar() {
   const [isLoading, setIsLoadingGoogleDriveApi] = useState(false);
   const [SignedinUser, setSignedInUser] = useState(null);
   const [files, setFiles] = useState([]);
   console.log(SignedinUser);
   const { CloudConnection } = useCloud();
-  const initClient = () => {
+  const initClient = useCallback(() => {
     setIsLoadingGoogleDriveApi(true);
     gapi.client
       .init({
@@ -30,16 +27,13 @@ export default function GoogleDriveFetch() {
         function () {
           // Listen for sign-in state changes.
           gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-          // gapi.setAccessToken(
-          //   gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
-          // );
 
           // Handle the initial sign-in state.
           updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         },
         function (error) {}
       );
-  };
+  });
   const handleClientLoad = async () => {
     await gapi.load("client:auth2", initClient);
   };
@@ -47,10 +41,6 @@ export default function GoogleDriveFetch() {
     console.log(isSignedIn);
     if (isSignedIn) {
       // Set the signed in user
-      localStorage.setItem(
-        "gdrivetoken",
-        gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
-      );
       console.log(gapi.auth2.getAuthInstance().currentUser.le.xc.id_token);
       setSignedInUser(gapi.auth2.getAuthInstance().isSignedIn.get());
       setIsLoadingGoogleDriveApi(false);
@@ -64,16 +54,15 @@ export default function GoogleDriveFetch() {
   useEffect(() => {
     async function InitateDrive() {
       //   await gapi.load("client:auth2", initClient)
-
       await handleClientLoad();
-        //   updateSigninStatus(SignedinUser);
-        if (localStorage.getItem("gdrivetoken")) {
-          listFiles();
-        }
+      //   updateSigninStatus(SignedinUser);
+      if (SignedinUser) {
+        listFiles();
+      }
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
-  }, [localStorage.getItem("gdrivetoken")]);
+  }, [SignedinUser]);
   /**
    * List files.
    */
@@ -90,7 +79,7 @@ export default function GoogleDriveFetch() {
         // setListDocumentsVisibility(true);
         const res = JSON.parse(response.body);
         setFiles(res.files);
-        let token = localStorage.getItem("gdrivetoken");
+        let token = gapi.auth2.getAuthInstance().currentUser.le.xc.id_token;
         await CloudConnection(
           { token, files: res.files },
           "cloud",
@@ -109,32 +98,17 @@ export default function GoogleDriveFetch() {
 
   const handleSignOutClick = (event) => {
     // setListDocumentsVisibility(false);
-    localStorage.removeItem("gdrivetoken");
     gapi.auth2.getAuthInstance().signOut();
   };
   return (
     <>
       <div className="cloud-connect-container">
-        <h1>Google Drive</h1>
-        {SignedinUser}
-        <Button
-          variant="solid"
-          onClick={() =>
-            localStorage.getItem("gdrivetoken")
-              ? handleSignOutClick()
-              : handleClientLoad()
-          }
-        >
-          {localStorage.getItem("gdrivetoken")
-            ? "Disconnect"
-            : "Connect Google Drive"}
-        </Button>
+        <h1>Google Calendar</h1>
+        {/* {SignedinUser} */}
+        <Button variant="solid">Connect Google Calendar</Button>
       </div>
       <div className="mt-4">
-        <DriveFiles data={files} className="lg:col-span-3" />
-        {/* {files.map((file) => (
-          <li>{file.name}</li>
-        ))} */}
+        <CommonCalendar />
       </div>
     </>
   );

@@ -43,6 +43,8 @@ function useAuth() {
             source,
           });
           if (resp.data.is_success === true) {
+            localStorage.setItem("authtoken", data);
+            dispatch(onSignInSuccess(data));
             dispatch(
               setUser(
                 {
@@ -59,6 +61,7 @@ function useAuth() {
                 }
               )
             );
+            
             const redirectUrl = query.get(REDIRECT_URL_KEY);
             navigate(
               redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
@@ -71,6 +74,8 @@ function useAuth() {
         } else {
           const { token, email, avatar, userName } = data;
           dispatch(onSignInSuccess(token));
+          localStorage.setItem("authtoken",token)
+
           const resp = await apiSocial({
             email: email,
             avatar,
@@ -110,6 +115,7 @@ function useAuth() {
           const { app_token: token } = resp.data.message.token;
           console.log(token);
           dispatch(onSignInSuccess(token));
+          localStorage.setItem("authtoken",token)
           const { loginId: email, ...restUser } = JSON.parse(
             resp.data.message.user
           )[0];

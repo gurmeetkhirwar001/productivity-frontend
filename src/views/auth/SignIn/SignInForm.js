@@ -55,7 +55,7 @@ const SignInForm = (props) => {
       action: "get",
     };
     const databody = encryptMessage(body);
-    const result = await signIn({ body: databody });
+    const result = await signIn({ body: databody }, "normal", "normal");
     console.log(result.status, "result");
     if (result.status === "failed") {
       setMessage(result.message);
@@ -166,7 +166,7 @@ const SignInForm = (props) => {
                   />
                 </GoogleOAuthProvider>
                 <FacebookLogin
-                  appId="249497466337900"
+                  appId="1268308690567775"
                   fields="email, name, picture"
                   callback={(res) => HandleFacebookLogin(res, "facebook")}
                   render={(renderProps) => (
@@ -176,8 +176,8 @@ const SignInForm = (props) => {
                     />
                   )}
                 />
-                <img src="/img/social/saml.png" />
-                <img src="/img/social/aplelogo.png" />
+                {/* <img src="/img/social/saml.png" />
+                <img src="/img/social/aplelogo.png" /> */}
                 <MsalProvider instance={msalInstance}>
                   <AzureLogin />
                 </MsalProvider>

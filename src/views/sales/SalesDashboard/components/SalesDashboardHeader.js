@@ -61,19 +61,9 @@ const SalesDashboardHeader = () => {
   return (
     <div className="lg:flex items-center justify-between mb-4 gap-3">
       <div className="mb-4 lg:mb-0">
-        <h3>Dashboard Overview</h3>
-        <p>View your current sales & summary</p>
+        <h3>Welcome to Dashboard</h3>
       </div>
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-        <DatePickerRange
-          value={[startDate, endDate]}
-          onChange={handleDateChange}
-          inputFormat={dateFormat}
-          size="sm"
-        />
-        <Button size="sm" icon={<HiOutlineFilter />} onClick={onFilter}>
-          Filter
-        </Button>
         <Button size="sm" icon={<HiPlus />} onClick={() => setInvite(!invite)}>
           Invite User
         </Button>
