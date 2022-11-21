@@ -3,7 +3,14 @@ import ApiService from "./ApiService";
 import BaseService from "./BaseService";
 
 export async function CloudConnect(data) {
-  return await BaseService.post("/cloudstorage/cloud-connect", data);
+  const AuthTOken = localStorage.getItem("authtoken")
+    ? localStorage.getItem("authtoken")
+    : localStorage.getItem("apptoken");
+  return await BaseService.post("/cloudstorage/cloud-connect", data, {
+    headers: {
+      token: AuthTOken,
+    },
+  });
 }
 
 export async function DropBoxFiles(params) {

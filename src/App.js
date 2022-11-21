@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./store";
@@ -19,18 +19,6 @@ const environment = process.env.NODE_ENV;
 // mockServer({ environment })
 
 function App() {
-  useEffect(() => {
-    async function generateAppToken() {
-      const response = await apiTokenGeneration();
-      localStorage.setItem("apptoken", response.data.message.app_token);
-    }
-    if (
-      !localStorage.getItem("authtoken") &&
-      !localStorage.getItem("apptoken")
-    ) {
-      generateAppToken();
-    }
-  }, []);
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

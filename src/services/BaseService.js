@@ -9,18 +9,13 @@ import { onSignOutSuccess } from "../store/auth/sessionSlice";
 const unauthorizedCode = [401];
 const NodeENV = "dev";
 console.log(localStorage.getItem("authtoken"));
-const AuthTOken = localStorage.getItem("authtoken")
-  ? localStorage.getItem("authtoken")
-  : localStorage.getItem("apptoken");
+
 const BaseService = axios.create({
   timeout: 60000,
   baseURL:
     process.env.REACT_APP_NODE_ENV == "dev"
       ? "http://localhost:4000"
       : "https://productivitys-backend.herokuapp.com",
-  headers: {
-    token: AuthTOken,
-  },
 });
 export const BaseService2 = axios.create({
   timeout: 60000,

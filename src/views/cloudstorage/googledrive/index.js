@@ -42,6 +42,9 @@ export default function GoogleDriveFetch() {
   };
   const handleClientLoad = async () => {
     await gapi.load("client:auth2", initClient);
+    await gapi.client.setToken({
+      access_token: gapi.auth2.getAuthInstance().currentUser.le.xc.id_token,
+    });
   };
   const updateSigninStatus = useCallback((isSignedIn) => {
     console.log(isSignedIn);
@@ -65,15 +68,16 @@ export default function GoogleDriveFetch() {
     async function InitateDrive() {
       //   await gapi.load("client:auth2", initClient)
 
-      await handleClientLoad();
-        //   updateSigninStatus(SignedinUser);
-        if (localStorage.getItem("gdrivetoken")) {
-          listFiles();
-        }
+      if (localStorage.getItem("gdrivetoken")) {
+        await gapi.load("client", initClient);
+      }
+      //   updateSigninStatus(SignedinUser);
+
+      listFiles();
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
-  }, [localStorage.getItem("gdrivetoken")]);
+  }, []);
   /**
    * List files.
    */

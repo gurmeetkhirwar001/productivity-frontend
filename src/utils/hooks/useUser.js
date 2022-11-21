@@ -16,7 +16,7 @@ function useTeanant() {
   const ListUserTeanants = async (data) => {
     try {
       const resp = await ListTenantUser(data);
-      dispatch(setTeanantList(resp?.data?.message));
+      dispatch(setTeanantList(JSON.parse(resp?.data?.message?.responce)));
       return {
         status: "success",
         message: "",

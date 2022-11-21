@@ -1,6 +1,8 @@
 import ApiService from "./ApiService";
 import BaseService from "./BaseService";
 
+
+
 export async function apiTokenGeneration() {
   return await BaseService.post("/auth", {
     tenant_Code: 177,
@@ -20,17 +22,33 @@ export async function apiTokenGeneration() {
 }
 
 export async function apiSignIn(data) {
-  return await BaseService.post("/users/signin-user", data);
+  return await BaseService.post("/users/signin-user", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
 }
 export async function apiSocial(data) {
-  return await BaseService.post("/users/social-signup", data);
+  return await BaseService.post("/users/social-signup", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
 }
 
 export async function apiSignUp(data) {
-  return await BaseService.post("/users/signup-user", data);
+  return await BaseService.post("/users/signup-user", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
 }
 export async function apiValidateUser(data) {
-  return await BaseService.post("/users/validate-user", data);
+  return await BaseService.post("/users/validate-user", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
 }
 export async function apiSignOut(data) {
   return ApiService.fetchData({
