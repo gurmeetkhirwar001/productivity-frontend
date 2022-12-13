@@ -39,7 +39,7 @@ const OrderColumn = ({ row }) => {
   );
 };
 
-const DropBoxTable = ({ data, className }) => {
+const OneDriveFiles = ({ data, className }) => {
   const columns = useMemo(
     () => [
       {
@@ -52,12 +52,6 @@ const DropBoxTable = ({ data, className }) => {
         Header: "File Name",
         accessor: "name",
         sortable: true,
-      },
-      {
-        Header: "Type",
-        accessor: ".tag",
-        Cell: (props) =>
-          props.row.original[".tag"] == "folder" ? "Folder" : "File",
       },
     ],
     []
@@ -101,4 +95,4 @@ const DropBoxTable = ({ data, className }) => {
   );
 };
 
-export default DropBoxTable;
+export default OneDriveFiles;

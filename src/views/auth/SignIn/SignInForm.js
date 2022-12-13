@@ -13,11 +13,11 @@ import useTimeOutMessage from "utils/hooks/useTimeOutMessage";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import useAuth from "utils/hooks/useAuth";
-import { msalConfig } from "../Azurelogin/authconfig";
+import { msalConfig } from "../Azure/authconfig";
 import { DefaultBody, encryptMessage } from "utils/common";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
-import AzureLogin from "../Azurelogin";
+import AzureLogin from "../Azure";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
 const validationSchema = Yup.object().shape({

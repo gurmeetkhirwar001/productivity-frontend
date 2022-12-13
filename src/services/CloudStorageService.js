@@ -12,10 +12,61 @@ export async function CloudConnect(data) {
     },
   });
 }
-
+export async function CalendarConnect(data) {
+  const AuthTOken = localStorage.getItem("authtoken")
+    ? localStorage.getItem("authtoken")
+    : localStorage.getItem("apptoken");
+  return await BaseService.post("/cloudstorage/calendar-connect", data, {
+    headers: {
+      token: AuthTOken,
+    },
+  });
+}
+export async function GetOneDriveFiles(token) {
+  return await axios.get(
+    "https://graph.microsoft.com/v1.0/me/drive/root/children",
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
+export async function GetOutlookMail(token, params) {
+  return await axios.get(
+    params !== ""
+      ? `https://graph.microsoft.com/v1.0/me/messages?$search=${params}`
+      : `https://graph.microsoft.com/v1.0/me/messages`,
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
+export async function GetOneDriveCalendarEvents(token) {
+  return await axios.get(
+    "https://graph.microsoft.com/v1.0/me/calendar/events",
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
+export async function GetTeamsMeeting(token) {
+  return await axios.get(
+    "https://graph.microsoft.com/v1.0/communications/OnlineMeetings",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+}
 export async function DropBoxFiles(params) {
   return await axios.post(
-    "https://api.dropboxapi.com/2/file_requests/list_v2",
+    "https://api.dropboxapi.com/2/files/list_folder",
     params,
     {
       headers: {

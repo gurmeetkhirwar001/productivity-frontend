@@ -254,6 +254,30 @@ const appsRoute = [
     component: React.lazy(() => import("views/Calendar/OutlookCalendar")),
     authority: [ADMIN, USER],
   },
+  {
+    key: "appsmails.gmail",
+    path: `${APP_PREFIX_PATH}/Mails/gmail`,
+    component: React.lazy(() => import("views/Mails/gmail")),
+    authority: [ADMIN, USER],
+  },
+  {
+    key: "appsmails.outlookcalendar",
+    path: `${APP_PREFIX_PATH}/Mails/outlookcalendar`,
+    component: React.lazy(() => import("views/Mails/outlook")),
+    authority: [ADMIN, USER],
+  },
+  {
+    key: "appsmeetings.teamsmeeting",
+    path: `${APP_PREFIX_PATH}/teams/meetings`,
+    component: React.lazy(() => import("views/Collaborations/teams")),
+    authority: [ADMIN, USER],
+  },
+  {
+    key: "appsmeetings.zoommeetings",
+    path: `${APP_PREFIX_PATH}/zoom/meetings`,
+    component: React.lazy(() => import("views/Collaborations/zoom")),
+    authority: [ADMIN, USER],
+  },
 ];
 
 export default appsRoute

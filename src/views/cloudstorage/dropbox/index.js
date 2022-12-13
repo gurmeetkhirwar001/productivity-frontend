@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { Button } from "components/ui";
 import { useParams } from "react-router-dom";
@@ -11,7 +12,8 @@ export default function DropboxFetch() {
     DropBoxUserDetails,
   } = useCloud();
   //   const [files, setFiles] = useState([]);
-  let filesArray;
+  const [dropboxfiles, setDropBoxfiles] = useState([]);
+  let filesArray = [];
   useEffect(() => {
     async function getAccessToken() {
       if (
@@ -26,45 +28,69 @@ export default function DropboxFetch() {
           redirect_uri: `${window.location.protocol}//${window.location.host}${window.location.pathname}`,
           //   response_type: "token",
         };
+        let files;
         await DropboxAuthToken(body);
         const userDetail = await DropBoxUserDetails();
-        const files = await DropBoxFetchFiles();
+        files = await DropBoxFetchFiles(setDropBoxfiles);
+        console.log(files.entries, "userDetail");
+
+        setDropBoxfiles(files?.entries);
+        // }
+        filesArray = files.entries;
         console.log(userDetail, "userDetail");
-        console.log(files.file_requests, "userDetail");
         await CloudConnection(
           {
             email: userDetail.email,
             name: userDetail.name.display_name,
-            files: files.file_requests,
+            files: files.entries,
           },
           "cloud",
           "dropbox"
         );
       } else {
         const files = await DropBoxFetchFiles();
-        // setFiles(files.file_requests);
-        filesArray = files?.file_requests;
+        // if (dropboxfiles.length < 0) {
+        // }
+        // console.log(files?.entries);
+        setDropBoxfiles(files?.entries);
+        filesArray = files?.entries;
       }
     }
     getAccessToken();
-  }, [DropboxAuthToken]);
+  }, [setDropBoxfiles, dropboxfiles, localStorage.getItem("dropboxtoken")]);
   const AuthorizeDropBox = () => {
+    const ClientID =
+      process.env.REACT_APP_NODE_ENV === "dev"
+        ? process.env.REACT_APP_DROPBOX_CLIENTID_DEV
+        : process.env.REACT_APP_DROPBOX_CLIENTID_PROD;
     window.location.replace(
-      `https://www.dropbox.com/oauth2/authorize?client_id=${process.env.REACT_APP_DROPBOX_CLIENTID}&redirect_uri=${window.location.protocol}//${window.location.host}${window.location.pathname}&response_type=code`
+      `https://www.dropbox.com/oauth2/authorize?client_id=${ClientID}&redirect_uri=${window.location.protocol}//${window.location.host}${window.location.pathname}&response_type=code`
     );
+  };
+  console.log(filesArray, "filesArray");
+  const disconnectDropBox = () => {
+    localStorage.removeItem("dropboxtoken");
+    setDropBoxfiles([]);
   };
   return (
     <>
       <div className="cloud-connect-container">
         <h1>Dropbox</h1>
-        <Button variant="solid" onClick={() => AuthorizeDropBox()}>
+        <Button
+          variant="solid"
+          onClick={() =>
+            localStorage.getItem("dropboxtoken")
+              ? disconnectDropBox()
+              : AuthorizeDropBox()
+          }
+        >
           {localStorage.getItem("dropboxtoken")
             ? "Disconnect DropBox"
             : "Connect Dropbox"}
         </Button>
       </div>
       <div className="mt-4">
-        <DropBoxTable data={filesArray ||[]} className="lg:col-span-3" />
+        <DropBoxTable data={dropboxfiles} className="lg:col-span-3" />
         {/* {files.map((file) => (
        <li>{file.name}</li>
      ))} */}

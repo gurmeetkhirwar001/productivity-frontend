@@ -19,7 +19,7 @@ import appConfig from "configs/app.config";
 import useTimeOutMessage from "utils/hooks/useTimeOutMessage";
 import { useNavigate } from "react-router-dom";
 import { MsalProvider, useMsal } from "@azure/msal-react";
-import { msalConfig } from "../Azurelogin/authconfig";
+import { msalConfig } from "../Azure/authconfig";
 import { useDispatch } from "react-redux";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -28,7 +28,7 @@ import { useDebounce } from "use-debounce";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import jwtDecode from "jwt-decode";
 import useAuth from "utils/hooks/useAuth";
-import AzureLogin from "../Azurelogin";
+import AzureLogin from "../Azure";
 import isDisabled from "components/ui/DatePicker/tables/components/props/isDisabled";
 const validationSchema = Yup.object().shape({
   // username: Yup.string().required("Please enter your user name"),

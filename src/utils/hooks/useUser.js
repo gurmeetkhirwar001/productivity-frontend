@@ -34,7 +34,7 @@ function useTeanant() {
       dispatch(setInviteuser(resp?.data?.message));
       return {
         status: "success",
-        message: "",
+        message: resp?.data?.message,
       };
     } catch (errors) {
       return {

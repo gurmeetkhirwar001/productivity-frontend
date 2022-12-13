@@ -53,9 +53,9 @@ const SalesDashboardHeader = () => {
     const encryptedbody = encryptMessage(body);
     const result = await InviteUsers({ body: encryptedbody });
     if (result.status == "failed") {
-      setMessage("Something went wrong while sending an Invite");
+      setMessage(result.message);
     } else {
-      setMessage("Invite has been sent!");
+      setMessage(result.message);
     }
   };
   return (
@@ -69,7 +69,7 @@ const SalesDashboardHeader = () => {
         </Button>
         <Dialog isOpen={invite} onClose={() => setInvite(!invite)}>
           <h2 className="text-center">Invite User</h2>
-          <p className="text-center pt-4">{message}</p>
+          <p className="text-center pt-4 text-success">{message}</p>
           <div className="p-4 invite-form">
             <label className="pb-5 ">User Email</label>
             <Input

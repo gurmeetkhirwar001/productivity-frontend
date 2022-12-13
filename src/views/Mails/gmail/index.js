@@ -1,30 +1,23 @@
-import React, { useState, useCallback, useEffect } from "react";
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Button } from "components/ui";
-import CommonCalendar from "../CommonCalendar";
 import { gapi } from "gapi-script";
+import GmailMails from "./maillist";
 import useCloud from "utils/hooks/useCloud";
-
 const DISCOVERY_DOCS = [
-  "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+  "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest",
 ];
-const scopes = "https://www.googleapis.com/auth/calendar";
-export default function GoogleCalendar() {
+const scopes = "https://mail.google.com/";
+export default function GoogleDriveFetch() {
   const [isLoading, setIsLoadingGoogleDriveApi] = useState(false);
   const [SignedinUser, setSignedInUser] = useState(null);
   const [files, setFiles] = useState([]);
   console.log(SignedinUser);
-  const { CalendarConnection } = useCloud();
-  console.log(
-    "apiKey:",
-    process.env.REACT_APP_NODE_ENV == "dev"
-      ? process.env.REACT_APP_GOOGLE_DEV_API_KEY
-      : process.env.REACT_APP_API_KEY,
-    "  clientId:",
-    process.env.REACT_APP_NODE_ENV == "dev"
-      ? process.env.REACT_APP_GOOGLE_DEV_CLIENT_ID
-      : process.env.REACT_APP_CLIENT_ID
-  );
-  const initClient = useCallback(() => {
+  const { CloudConnection } = useCloud();
+  const initClient = () => {
     setIsLoadingGoogleDriveApi(true);
     gapi.client
       .init({
@@ -43,24 +36,28 @@ export default function GoogleCalendar() {
         function () {
           // Listen for sign-in state changes.
           gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          // gapi.setAccessToken(
+          //   gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
+          // );
 
           // Handle the initial sign-in state.
           updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         },
-        function (error) {
-          console.log(error);
-        }
+        function (error) {}
       );
-  });
+  };
   const handleClientLoad = async () => {
     await gapi.load("client:auth2", initClient);
+    await gapi.client.setToken({
+      access_token: gapi.auth2.getAuthInstance().currentUser.le.xc.id_token,
+    });
   };
   const updateSigninStatus = useCallback((isSignedIn) => {
     console.log(isSignedIn);
     if (isSignedIn) {
       // Set the signed in user
       localStorage.setItem(
-        "gcalendartoken",
+        "gmailtoken",
         gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
       );
       console.log(gapi.auth2.getAuthInstance().currentUser.le.xc.id_token);
@@ -76,48 +73,57 @@ export default function GoogleCalendar() {
   useEffect(() => {
     async function InitateDrive() {
       //   await gapi.load("client:auth2", initClient)
-      if (localStorage.getItem("gcalendartoken")) {
+
+      if (localStorage.getItem("gmailtoken")) {
         await gapi.load("client", initClient);
       }
       //   updateSigninStatus(SignedinUser);
-      if (localStorage.getItem("gcalendartoken")) {
-        listFiles();
-      }
+
+      listFiles();
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
-  }, [SignedinUser]);
+  }, []);
   /**
    * List files.
    */
-  const listFiles = (searchTerm = null) => {
+  const listFiles = async (searchTerm = null) => {
     // setIsFetchingGoogleDriveFiles(true);
-    gapi.client.calendar.events
-      .list({
-        calendarId: "primary",
-        timeMin: new Date().toISOString(),
-        maxResults: 10,
-      })
+    const response = await gapi.client.gmail.users.labels.list({
+      userId: "me",
+    });
+    console.log(response, "responseee");
+    gapi.client.gmail.users.threads
+      .list(
+        {
+          userId: "me",
+          //   pageToken: 10,
+          q: "facebook.com",
+          labelIds: ["IMPORTANT"],
+        },
+        (err, res) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (!res.data.messages) {
+            resolve([]);
+            return;
+          }
+          resolve(res.data.messages);
+        }
+      )
       .then(async function (response) {
         // setIsFetchingGoogleDriveFiles(false);
         // setListDocumentsVisibility(true);
-        let events = response.result.items.map((ite) => {
-          return {
-            start: ite.start.dateTime,
-            end: ite.end.dateTime,
-            title: ite.summary,
-          };
-        });
-        console.log(events);
-
         const res = JSON.parse(response.body);
-        setFiles(events);
-        let token = gapi.auth2.getAuthInstance().currentUser.le.xc.id_token;
-        if (localStorage.getItem("gcalendartoken") == null) {
-          await CalendarConnection(
-            { token, events: res.files },
-            "calendar",
-            "googlecalendar"
+        setFiles(res.threads);
+        let token = localStorage.getItem("gmailtoken");
+        if (token == undefined) {
+          await CloudConnection(
+            { token, files: res.files },
+            "cloud",
+            "googledrive"
           );
         }
         // setDocuments(res.files);
@@ -133,29 +139,32 @@ export default function GoogleCalendar() {
 
   const handleSignOutClick = (event) => {
     // setListDocumentsVisibility(false);
-    localStorage.removeItem("gcalendartoken");
+    localStorage.removeItem("gmailtoken");
     gapi.auth2.getAuthInstance().signOut();
   };
   return (
     <>
       <div className="cloud-connect-container">
-        <h1>Google Calendar</h1>
-        {/* {SignedinUser} */}
+        <h1>Gmail Important Mails</h1>
+        {SignedinUser}
         <Button
           variant="solid"
           onClick={() =>
-            localStorage.getItem("gcalendartoken") == undefined
-              ? handleClientLoad()
-              : handleSignOutClick()
+            localStorage.getItem("gmailtoken")
+              ? handleSignOutClick()
+              : handleClientLoad()
           }
         >
-          {localStorage.getItem("gcalendartoken") == undefined
-            ? "Connect Google Calendar"
-            : "Disconnect Calendar"}
+          {localStorage.getItem("gmailtoken")
+            ? "Disconnect Gmail"
+            : "Connect Gmail"}
         </Button>
       </div>
       <div className="mt-4">
-        <CommonCalendar event={files} />
+        <GmailMails data={files} className="lg:col-span-3" />
+        {/* {files.map((file) => (
+          <li>{file.name}</li>
+        ))} */}
       </div>
     </>
   );

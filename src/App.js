@@ -8,7 +8,7 @@ import Layout from "components/layout";
 import history from "./history";
 import mockServer from "./mock";
 import "./locales";
-import { apiTokenGeneration } from "services/AuthService";
+
 
 const environment = process.env.NODE_ENV;
 

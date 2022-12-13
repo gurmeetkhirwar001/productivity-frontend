@@ -39,7 +39,7 @@ const OrderColumn = ({ row }) => {
   );
 };
 
-const DropBoxTable = ({ data, className }) => {
+const GmailMails = ({ data, className }) => {
   const columns = useMemo(
     () => [
       {
@@ -49,15 +49,13 @@ const DropBoxTable = ({ data, className }) => {
         // Cell: (props) => <OrderColumn row={props.row.original} />,
       },
       {
-        Header: "File Name",
-        accessor: "name",
+        Header: "Mail Snippet",
+        accessor: "snippet",
         sortable: true,
-      },
-      {
-        Header: "Type",
-        accessor: ".tag",
-        Cell: (props) =>
-          props.row.original[".tag"] == "folder" ? "Folder" : "File",
+        // Cell: (props) => (
+        //   <div dangerouslySetInnerHTML={{ __html: props.data.snippet }} />
+        // ),
+        //   console.log(props, "propss"),
       },
     ],
     []
@@ -101,4 +99,4 @@ const DropBoxTable = ({ data, className }) => {
   );
 };
 
-export default DropBoxTable;
+export default GmailMails;
