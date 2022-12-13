@@ -1,9 +1,24 @@
+// import {} from "react-router-dom"
+const redirectionURI =
+  window.location.href ===
+    `${window.location.protocol}/${window.location.host}/sign-in` &&
+  process.env.REACT_APP_NODE_ENV == "prod"
+    ? `${window.location.protocol}/${window.location.host}/`
+    : window.location.href ===
+        `${window.location.protocol}/${window.location.host}/app/cloudstorage/onedrive` &&
+      process.env.REACT_APP_NODE_ENV == "prod"
+    ? `${window.location.protocol}/${window.location.host}/app/cloudstorage/onedrive`
+    : window.location.href ===
+        `${window.location.protocol}/${window.location.host}/app/Calendar/OutlookCalendar` &&
+      process.env.REACT_APP_NODE_ENV == "prod"
+    ? `${window.location.protocol}/${window.location.host}/app/Calendar/OutlookCalendar`
+    : "";
 export const msalConfig = {
   auth: {
     clientId: "2fecf9a4-b742-4a48-93c1-7905cc13aa13",
     clientSecret: "9c4ed369-eb08-4e92-b0f5-e3e171766367",
     authority: "https://login.microsoftonline.com/common/",
-    redirectUri: window.location.href,
+    redirectUri: redirectionURI,
   },
   cache: {
     cacheLocation: "sessionStorage", // This configures where your cache will be stored
