@@ -15,7 +15,7 @@ const BaseService = axios.create({
   baseURL:
     process.env.REACT_APP_NODE_ENV == "dev"
       ? "http://localhost:4000"
-      : "https://101.53.132.62",
+      : "https://101.53.132.62/api",
 });
 export const BaseService2 = axios.create({
   timeout: 60000,
