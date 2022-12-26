@@ -10,10 +10,12 @@ export default function DropboxFetch() {
     CloudConnection,
     DropBoxFetchFiles,
     DropBoxUserDetails,
+    DropBoxUploadFile,
   } = useCloud();
   //   const [files, setFiles] = useState([]);
   const [dropboxfiles, setDropBoxfiles] = useState([]);
   let filesArray = [];
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     async function getAccessToken() {
       if (
@@ -57,7 +59,7 @@ export default function DropboxFetch() {
       }
     }
     getAccessToken();
-  }, [setDropBoxfiles, dropboxfiles, localStorage.getItem("dropboxtoken")]);
+  }, [localStorage.getItem("dropboxtoken")]);
   const AuthorizeDropBox = () => {
     const ClientID =
       process.env.REACT_APP_NODE_ENV === "dev"
@@ -71,6 +73,12 @@ export default function DropboxFetch() {
   const disconnectDropBox = () => {
     localStorage.removeItem("dropboxtoken");
     setDropBoxfiles([]);
+  };
+  const UploadDropBoxFiles = async (file) => {
+    await DropBoxUploadFile(file);
+    const files = await DropBoxFetchFiles();
+    setDropBoxfiles(files?.entries);
+    setOpen(false);
   };
   return (
     <>
@@ -90,7 +98,13 @@ export default function DropboxFetch() {
         </Button>
       </div>
       <div className="mt-4">
-        <DropBoxTable data={dropboxfiles} className="lg:col-span-3" />
+        <DropBoxTable
+          data={dropboxfiles}
+          className="lg:col-span-3"
+          UploadDropBoxFiles={UploadDropBoxFiles}
+          setOpen={setOpen}
+          open={open}
+        />
         {/* {files.map((file) => (
        <li>{file.name}</li>
      ))} */}

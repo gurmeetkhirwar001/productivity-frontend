@@ -198,6 +198,27 @@ const appsNavigationConfig = [
         ],
       },
       {
+        key: "apps.appnotify",
+        path: "",
+        title: "Notifications",
+        translateKey: "nav.appnotify.notification",
+        icon: "project",
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: [ADMIN, USER],
+        subMenu: [
+          {
+            key: "appnotify.sendgrid",
+            path: `${APP_PREFIX_PATH}/notification/sendgrid`,
+            title: "Sendgrid",
+            translateKey: "nav.appnotify.gmail",
+            icon: "",
+            type: NAV_ITEM_TYPE_ITEM,
+            authority: [ADMIN, USER],
+            subMenu: [],
+          },
+        ],
+      },
+      {
         key: "apps.crm",
         path: "",
         title: "Configuration",

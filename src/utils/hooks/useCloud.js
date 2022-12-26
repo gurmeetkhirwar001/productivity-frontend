@@ -4,6 +4,7 @@ import {
   DropBoxFiles,
   DropBoxGetUserAccount,
   CalendarConnect,
+  UploadDropBoxFiles,
 } from "services/CloudStorageService";
 
 import jwtDecode from "jwt-decode";
@@ -133,6 +134,10 @@ function useCloud() {
     const res = await DropBoxGetUserAccount();
     return res.data;
   };
+  const DropBoxUploadFile = async (params) => {
+    const res = await UploadDropBoxFiles(params);
+    return res.data;
+  };
   const HandleOneDrivefiles = (files) => {
     dispatch(setOneDriveFiles(files));
   };
@@ -162,6 +167,7 @@ function useCloud() {
     HandleCalendarEvent,
     HandleOutlookmail,
     HandleteamsMeeting,
+    DropBoxUploadFile
   };
 }
 

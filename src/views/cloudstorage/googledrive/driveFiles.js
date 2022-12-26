@@ -1,11 +1,13 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { Card, Button, Table, Badge } from "components/ui";
 import useThemeClass from "utils/hooks/useThemeClass";
 import { useTable } from "react-table";
 import { useNavigate } from "react-router-dom";
 import NumberFormat from "react-number-format";
 import dayjs from "dayjs";
-
+import Modal from "react-responsive-modal";
+import Customize from "views/ui-components/forms/Upload/Customize";
+import "react-responsive-modal/styles.css";
 const { Tr, Td, TBody, THead, Th } = Table;
 
 const orderStatusColor = {
@@ -39,7 +41,15 @@ const OrderColumn = ({ row }) => {
   );
 };
 
-const DriveFiles = ({ data, className }) => {
+const DriveFiles = ({
+  data,
+  className,
+  UploadFiles,
+  open,
+  setOpen,
+  downloadFiles,
+}) => {
+  const [file, setFile] = useState(null);
   const columns = useMemo(
     () => [
       {
@@ -53,10 +63,23 @@ const DriveFiles = ({ data, className }) => {
         accessor: "name",
         sortable: true,
       },
+      // {
+      //   Header: "Download",
+      //   Cell: (props) => (
+      //     <Button
+      //       variant={"solid"}
+      //       onClick={() => downloadFiles(props.row.original.id)}
+      //     >
+      //       Download
+      //     </Button>
+      //   ),
+      // },
     ],
     []
   );
-
+  const onSumbit = () => {
+    UploadFiles(file);
+  };
   const { getTableProps, getTableBodyProps, prepareRow, headerGroups, rows } =
     useTable({ columns, data, initialState: { pageIndex: 0 } });
 
@@ -64,7 +87,11 @@ const DriveFiles = ({ data, className }) => {
     <Card className={className}>
       <div className="flex items-center justify-between mb-6">
         <h4>Files List</h4>
-        {/* <Button size="sm">View Orders</Button> */}
+        {localStorage.getItem("gdrivetoken") && (
+          <Button size="sm" onClick={() => setOpen(!open)}>
+            Upload File to Drive
+          </Button>
+        )}
       </div>
       <Table {...getTableProps()}>
         <THead>
@@ -91,6 +118,10 @@ const DriveFiles = ({ data, className }) => {
           })}
         </TBody>
       </Table>
+      <Modal open={open} onClose={() => setOpen(!open)}>
+        <h1 className="p-4">Upload File to Google Drive</h1>
+        <Customize onSubmit={onSumbit} setFile={setFile} />
+      </Modal>
     </Card>
   );
 };

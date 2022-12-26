@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Button } from "components/ui";
+import { Alert, Button } from "components/ui";
 import { gapi } from "gapi-script";
 import DriveFiles from "./driveFiles";
 import useCloud from "utils/hooks/useCloud";
@@ -16,6 +16,7 @@ export default function GoogleDriveFetch() {
   const [SignedinUser, setSignedInUser] = useState(null);
   const [files, setFiles] = useState([]);
   console.log(SignedinUser);
+  const [open, setOpen] = useState(false);
   const { CloudConnection } = useCloud();
   const initClient = () => {
     setIsLoadingGoogleDriveApi(true);
@@ -103,7 +104,35 @@ export default function GoogleDriveFetch() {
         // setDocuments(res.files);
       });
   };
-
+  const UploadFiles = (files) => {
+    const fileMetaData = {
+      name: files[0].name,
+    };
+    const media = {
+      mimeType: files[0].type,
+      body: files[0],
+    };
+    gapi.client.drive.files
+      .create({
+        resource: fileMetaData,
+        media: media,
+        fields: "id",
+      })
+      .then((res) => {
+        setOpen(!open);
+        listFiles();
+      });
+  };
+  const downloadFiles = (fileId) => {
+    gapi.client.drive.files
+      .get({
+        fileId: fileId,
+        alt: "media",
+      })
+      .then((res) => {
+        console.log(res);
+      });
+  };
   /**
    *  Sign in the user upon button click.
    */
@@ -135,7 +164,14 @@ export default function GoogleDriveFetch() {
         </Button>
       </div>
       <div className="mt-4">
-        <DriveFiles data={files} className="lg:col-span-3" />
+        <DriveFiles
+          data={files}
+          className="lg:col-span-3"
+          UploadFiles={UploadFiles}
+          setOpen={setOpen}
+          open={open}
+          downloadFiles={downloadFiles}
+        />
         {/* {files.map((file) => (
           <li>{file.name}</li>
         ))} */}

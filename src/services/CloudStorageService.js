@@ -1,7 +1,12 @@
 import axios from "axios";
 import ApiService from "./ApiService";
 import BaseService from "./BaseService";
-
+var charsToEncode = /[\u007f-\uffff]/g;
+function http_header_safe_json(v) {
+  return JSON.stringify(v).replace(charsToEncode, function (c) {
+    return "\\u" + ("000" + c.charCodeAt(0).toString(16)).slice(-4);
+  });
+}
 export async function CloudConnect(data) {
   const AuthTOken = localStorage.getItem("authtoken")
     ? localStorage.getItem("authtoken")
@@ -71,6 +76,26 @@ export async function DropBoxFiles(params) {
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("dropboxtoken")}`,
+      },
+    }
+  );
+}
+export async function UploadDropBoxFiles(params) {
+  const apiarg = {
+    path: `/${params[0].name}`,
+    mode: "add",
+    autorename: true,
+    mute: false,
+  };
+  console.log(apiarg);
+  return await axios.post(
+    "https://content.dropboxapi.com/2/files/upload",
+    params,
+    {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        Authorization: `Bearer ${localStorage.getItem("dropboxtoken")}`,
+        "Dropbox-API-Arg": http_header_safe_json(apiarg),
       },
     }
   );

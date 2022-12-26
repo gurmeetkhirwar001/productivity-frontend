@@ -278,6 +278,12 @@ const appsRoute = [
     component: React.lazy(() => import("views/Collaborations/zoom")),
     authority: [ADMIN, USER],
   },
+  {
+    key: "appnotify.sendgrid",
+    path: `${APP_PREFIX_PATH}/notification/sendgrid`,
+    component: React.lazy(() => import("views/notifications/sendgrid")),
+    authority: [ADMIN, USER],
+  },
 ];
 
 export default appsRoute

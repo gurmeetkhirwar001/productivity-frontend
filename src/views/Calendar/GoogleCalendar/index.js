@@ -1,8 +1,17 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Button } from "components/ui";
+import {
+  Button,
+  DatePicker,
+  FormContainer,
+  FormItem,
+  Input,
+} from "components/ui";
 import CommonCalendar from "../CommonCalendar";
 import { gapi } from "gapi-script";
 import useCloud from "utils/hooks/useCloud";
+import CommonModal from "components/ui/Modal";
+import { Field, Form, Formik } from "formik";
+import DateTimePicker from "views/ui-components/forms/DatePicker/DateTimePicker";
 
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
@@ -12,6 +21,13 @@ export default function GoogleCalendar() {
   const [isLoading, setIsLoadingGoogleDriveApi] = useState(false);
   const [SignedinUser, setSignedInUser] = useState(null);
   const [files, setFiles] = useState([]);
+  const [data, setData] = useState({
+    start: "",
+    end: "",
+    summary: "",
+    description: "",
+  });
+  const [open, setOpen] = useState(false);
   console.log(SignedinUser);
   const { CalendarConnection } = useCloud();
   console.log(
@@ -136,27 +152,149 @@ export default function GoogleCalendar() {
     localStorage.removeItem("gcalendartoken");
     gapi.auth2.getAuthInstance().signOut();
   };
+  const handleCreateEvent = (values) => {
+    console.log(data, "valuess");
+    // gapi.client.calendar.events.insert({
+    //   calendarId: 'primary',
+
+    // })
+  };
   return (
     <>
       <div className="cloud-connect-container">
         <h1>Google Calendar</h1>
         {/* {SignedinUser} */}
-        <Button
-          variant="solid"
-          onClick={() =>
-            localStorage.getItem("gcalendartoken") == undefined
-              ? handleClientLoad()
-              : handleSignOutClick()
-          }
-        >
-          {localStorage.getItem("gcalendartoken") == undefined
-            ? "Connect Google Calendar"
-            : "Disconnect Calendar"}
-        </Button>
+        <div className="d-flex justify-content-between">
+          <Button
+            variant="solid"
+            style={{
+              marginRight: "1rem",
+            }}
+            onClick={() =>
+              localStorage.getItem("gcalendartoken") == undefined
+                ? handleClientLoad()
+                : handleSignOutClick()
+            }
+          >
+            {localStorage.getItem("gcalendartoken") == undefined
+              ? "Connect Google Calendar"
+              : "Disconnect Calendar"}
+          </Button>
+          <Button variant="solid" onClick={() => setOpen(!open)}>
+            Create Event
+          </Button>
+        </div>
       </div>
       <div className="mt-4">
         <CommonCalendar event={files} />
+        <CommonModal open={open} onClose={setOpen}>
+          <h2>Create Google Event</h2>
+          <Formik
+            style={{
+              marginTop: 10,
+            }}
+            initialValues={data}
+            enableReinitialize={true}
+            // validationSchema={validationSchema}
+            onSubmit={(values, { setSubmitting }) => {
+              setSubmitting(true);
+              setTimeout(() => {
+                handleCreateEvent(values, setSubmitting);
+              }, 1000);
+            }}
+          >
+            {({ values, touched, errors, isSubmitting }) => {
+              return (
+                <Form>
+                  <FormContainer>
+                    <div className="md:grid grid-cols-1 gap-4">
+                      <FormItem
+                        label="Event Title"
+                        invalid={errors.dob && touched.dob}
+                        errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="summary"
+                          placeholder="Enter Title of event"
+                          component={Input}
+                          onChange={(e) =>
+                            setData({ ...data, summary: e.target.value })
+                          }
+                        ></Field>
+                      </FormItem>
+                      <FormItem
+                        label="Event Description"
+                        invalid={errors.dob && touched.dob}
+                        errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="description"
+                          placeholder="Enter Descrption of event"
+                          component={Input}
+                          onChange={(e) =>
+                            setData({ ...data, description: e.target.value })
+                          }
+                        ></Field>
+                      </FormItem>
+                    </div>
+                    <div className="md:grid grid-cols-1 gap-4">
+                      <FormItem
+                        label="Event Start date"
+                        invalid={errors.dob && touched.dob}
+                        errorMessage={errors.dob}
+                      >
+                        <Field name="start" placeholder="Date">
+                          {({ field, form }) => (
+                            <DateTimePicker
+                              field={field}
+                              form={form}
+                              value={field.value}
+                              onChange={(date) => {
+                                setData({ ...data, start: date });
+                              }}
+                            />
+                          )}
+                        </Field>
+                      </FormItem>
+                    </div>
+                    <div className="md:grid grid-cols-1 gap-4">
+                      <FormItem
+                        label="Event End date"
+                        invalid={errors.dob && touched.dob}
+                        errorMessage={errors.dob}
+                      >
+                        <Field name="end" placeholder="Date">
+                          {({ field, form }) => (
+                            <DateTimePicker
+                              field={field}
+                              form={form}
+                              value={field.value}
+                              placeholder="Pick event end date"
+                              onChange={(date) => {
+                                setData({ ...data, end: date });
+                              }}
+                            />
+                          )}
+                        </Field>
+                      </FormItem>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        loading={isSubmitting}
+                        variant="solid"
+                        type="submit"
+                      >
+                        Create Event
+                      </Button>
+                    </div>
+                  </FormContainer>
+                </Form>
+              );
+            }}
+          </Formik>
+        </CommonModal>
       </div>
     </>
   );
 }
+  

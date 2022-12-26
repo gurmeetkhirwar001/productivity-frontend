@@ -1,11 +1,13 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { Card, Button, Table, Badge } from "components/ui";
 import useThemeClass from "utils/hooks/useThemeClass";
 import { useTable } from "react-table";
 import { useNavigate } from "react-router-dom";
 import NumberFormat from "react-number-format";
 import dayjs from "dayjs";
-
+import Modal from "react-responsive-modal";
+import "react-responsive-modal/styles.css";
+import Customize from "views/ui-components/forms/Upload/Customize";
 const { Tr, Td, TBody, THead, Th } = Table;
 
 const orderStatusColor = {
@@ -39,7 +41,14 @@ const OrderColumn = ({ row }) => {
   );
 };
 
-const DropBoxTable = ({ data, className }) => {
+const DropBoxTable = ({
+  data,
+  className,
+  open,
+  setOpen,
+  UploadDropBoxFiles,
+}) => {
+  const [file, setFile] = useState(null);
   const columns = useMemo(
     () => [
       {
@@ -62,7 +71,9 @@ const DropBoxTable = ({ data, className }) => {
     ],
     []
   );
-
+  const onSubmit = () => {
+    UploadDropBoxFiles(file);
+  };
   const { getTableProps, getTableBodyProps, prepareRow, headerGroups, rows } =
     useTable({ columns, data, initialState: { pageIndex: 0 } });
 
@@ -70,7 +81,11 @@ const DropBoxTable = ({ data, className }) => {
     <Card className={className}>
       <div className="flex items-center justify-between mb-6">
         <h4>Files List</h4>
-        {/* <Button size="sm">View Orders</Button> */}
+        {localStorage.getItem("dropboxtoken") && (
+          <Button size="sm" onClick={() => setOpen(!open)}>
+            Upload File to Dropbox
+          </Button>
+        )}
       </div>
       <Table {...getTableProps()}>
         <THead>
@@ -97,6 +112,10 @@ const DropBoxTable = ({ data, className }) => {
           })}
         </TBody>
       </Table>
+      <Modal open={open} onClose={() => setOpen(!open)}>
+        <h1 className="p-4">Upload File to Dropbox</h1>
+        <Customize onSubmit={onSubmit} setFile={setFile} />
+      </Modal>
     </Card>
   );
 };
