@@ -144,13 +144,16 @@ function useCloud() {
   const HandleCalendarEvent = (files) => {
     let events = files.map((ite) => {
       return {
-        start: ite.start.dateTime,
-        end: ite.end.dateTime,
+        startDate: ite.start.dateTime,
+        endDate: ite.end.dateTime,
         title: ite.subject,
+        id: ite.id,
       };
     });
     dispatch(setoutlookEvents(events));
   };
+
+
   const HandleOutlookmail = (files) => {
     dispatch(setoutlookmails(files));
   };

@@ -59,6 +59,37 @@ export async function GetOneDriveCalendarEvents(token) {
     }
   );
 }
+export async function CreateOutlookCalendarEvents(body, token) {
+  return await axios.post(
+    "https://graph.microsoft.com/v1.0/me/calendar/events",
+    body,
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
+export async function GetOutlookCalendarEvent(body, token) {
+  return await axios.get(
+    `https://graph.microsoft.com/v1.0/me/calendar/events/${body}`,
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
+export async function DeleteOutlookCalendarEvent(body, token) {
+  return await axios.delete(
+    `https://graph.microsoft.com/v1.0/me/calendar/events/${body}`,
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+}
 export async function GetTeamsMeeting(token) {
   return await axios.get(
     "https://graph.microsoft.com/v1.0/communications/OnlineMeetings",

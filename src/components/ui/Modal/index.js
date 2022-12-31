@@ -4,7 +4,7 @@ import "react-responsive-modal/styles.css";
 
 export default function CommonModal(props) {
   return (
-    <Modal open={props.open} onClose={props.onClose}>
+    <Modal open={props.open} onClose={props.onClose} center={true}>
       {props.children}
     </Modal>
   );

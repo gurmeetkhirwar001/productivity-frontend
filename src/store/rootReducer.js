@@ -4,6 +4,7 @@ import auth from './auth'
 import base from './base'
 import user from "./user";
 import cloud from "./cloud";
+import colab from "./colaborations";
 
 const rootReducer = (asyncReducers) => (state, action) => {
   const combinedReducer = combineReducers({
@@ -12,6 +13,7 @@ const rootReducer = (asyncReducers) => (state, action) => {
     base,
     user,
     cloud,
+    colab,
     ...asyncReducers,
   });
   return combinedReducer(state, action);

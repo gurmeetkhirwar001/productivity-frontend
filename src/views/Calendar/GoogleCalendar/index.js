@@ -12,6 +12,8 @@ import useCloud from "utils/hooks/useCloud";
 import CommonModal from "components/ui/Modal";
 import { Field, Form, Formik } from "formik";
 import DateTimePicker from "views/ui-components/forms/DatePicker/DateTimePicker";
+import dayjs from "dayjs";
+import moment from "moment-timezone";
 
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
@@ -21,6 +23,7 @@ export default function GoogleCalendar() {
   const [isLoading, setIsLoadingGoogleDriveApi] = useState(false);
   const [SignedinUser, setSignedInUser] = useState(null);
   const [files, setFiles] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState({});
   const [data, setData] = useState({
     start: "",
     end: "",
@@ -28,6 +31,7 @@ export default function GoogleCalendar() {
     description: "",
   });
   const [open, setOpen] = useState(false);
+  const [openDetail, setOpenDetail] = useState(false);
   console.log(SignedinUser);
   const { CalendarConnection } = useCloud();
   console.log(
@@ -106,22 +110,37 @@ export default function GoogleCalendar() {
   /**
    * List files.
    */
+
+  const GetEventDetail = (event) => {
+    console.log(event);
+    gapi.client.calendar.events
+      .get({
+        calendarId: "primary",
+        eventId: event,
+      })
+      .then((response) => {
+        setSelectedEvent(response?.result);
+        setOpenDetail(!openDetail);
+      })
+      .catch((e) => e);
+  };
+
   const listFiles = (searchTerm = null) => {
     // setIsFetchingGoogleDriveFiles(true);
     gapi.client.calendar.events
       .list({
         calendarId: "primary",
-        timeMin: new Date().toISOString(),
-        maxResults: 10,
+        maxResults: 200,
       })
       .then(async function (response) {
         // setIsFetchingGoogleDriveFiles(false);
         // setListDocumentsVisibility(true);
         let events = response.result.items.map((ite) => {
           return {
-            start: ite.start.dateTime,
-            end: ite.end.dateTime,
+            startDate: new Date(ite.start.dateTime),
+            endDate: new Date(ite.end.dateTime),
             title: ite.summary,
+            id: ite.id,
           };
         });
         console.log(events);
@@ -139,7 +158,18 @@ export default function GoogleCalendar() {
         // setDocuments(res.files);
       });
   };
-
+  const onDeleteEvent = (id) => {
+    gapi.client.calendar.events
+      .delete({
+        calendarId: "primary",
+        eventId: id,
+      })
+      .then(() => {
+        listFiles();
+        setOpenDetail(!openDetail);
+      })
+      .catch((e) => e);
+  };
   /**
    *  Sign in the user upon button click.
    */
@@ -153,11 +183,38 @@ export default function GoogleCalendar() {
     gapi.auth2.getAuthInstance().signOut();
   };
   const handleCreateEvent = (values) => {
-    console.log(data, "valuess");
-    // gapi.client.calendar.events.insert({
-    //   calendarId: 'primary',
-
-    // })
+    const date = moment.tz.guess();
+    console.log(date, "Date");
+    let body = {
+      summary: values.summary,
+      start: {
+        dateTime: values.start,
+        timeZone: date,
+      },
+      end: {
+        dateTime: values.start,
+        timeZone: date,
+      },
+      description: values.description,
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: "email", minutes: 24 * 60 },
+          { method: "popup", minutes: 10 },
+        ],
+      },
+    };
+    console.log(body);
+    gapi.client.calendar.events
+      .insert({
+        calendarId: "primary",
+        resource: body,
+      })
+      .then(() => {
+        listFiles();
+        setOpen(!open);
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <>
@@ -186,7 +243,28 @@ export default function GoogleCalendar() {
         </div>
       </div>
       <div className="mt-4">
-        <CommonCalendar event={files} />
+        <CommonCalendar event={files} EventDetails={GetEventDetail} />
+        <CommonModal open={openDetail} onClose={setOpenDetail}>
+          <h1>Event Details</h1>
+
+          <p>Event Title: {selectedEvent.summary}</p>
+          <p>Event Description: {selectedEvent.description}</p>
+          <p>
+            Event Start Date:{" "}
+            {dayjs(selectedEvent?.start?.dateTime).format("DD-MM-YYYY HH:MM A")}
+          </p>
+          <p>
+            Event End Date:{" "}
+            {dayjs(selectedEvent?.end?.dateTime).format("DD-MM-YYYY HH:MM A")}
+          </p>
+          <Button
+            variant="solid"
+            className="mt-4"
+            onClick={() => onDeleteEvent(selectedEvent?.id)}
+          >
+            Delete Event
+          </Button>
+        </CommonModal>
         <CommonModal open={open} onClose={setOpen}>
           <h2>Create Google Event</h2>
           <Formik
@@ -208,76 +286,86 @@ export default function GoogleCalendar() {
                 <Form>
                   <FormContainer>
                     <div className="md:grid grid-cols-1 gap-4">
+                      <div className="md:grid grid-cols-1 gap-4">
+                        <FormItem
+                          label="Event Start date"
+                          // invalid={errors.dob && touched.dob}
+                          // errorMessage={errors.dob}
+                        >
+                          <Field name="start" placeholder="Date">
+                            {({ field, form }) => (
+                              <DateTimePicker
+                                field={field}
+                                form={form}
+                                value={field.value}
+                                onChange={(date) => {
+                                  setData({
+                                    ...data,
+                                    start: dayjs(date).format(
+                                      "YYYY-MM-DDTHH:mm:ss"
+                                    ),
+                                  });
+                                }}
+                              />
+                            )}
+                          </Field>
+                        </FormItem>
+                      </div>
+                      <div className="md:grid grid-cols-1 gap-4">
+                        <FormItem
+                          label="Event End date"
+                          // invalid={errors.dob && touched.dob}
+                          // errorMessage={errors.dob}
+                        >
+                          <Field name="end" placeholder="Date">
+                            {({ field, form }) => (
+                              <DateTimePicker
+                                field={field}
+                                form={form}
+                                value={field.value}
+                                placeholder="Pick event end date"
+                                onChange={(date) => {
+                                  setData({
+                                    ...data,
+                                    end: dayjs(date).format(
+                                      "YYYY-MM-DDTHH:mm:ss"
+                                    ),
+                                  });
+                                }}
+                              />
+                            )}
+                          </Field>
+                        </FormItem>
+                      </div>
                       <FormItem
                         label="Event Title"
-                        invalid={errors.dob && touched.dob}
-                        errorMessage={errors.dob}
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
                       >
                         <Field
                           name="summary"
                           placeholder="Enter Title of event"
                           component={Input}
-                          onChange={(e) =>
-                            setData({ ...data, summary: e.target.value })
-                          }
+                          value={values.summary}
+                          // onChange={(e) =>
+                          //   setData({ ...data, summary: e.target.value })
+                          // }
                         ></Field>
                       </FormItem>
                       <FormItem
                         label="Event Description"
-                        invalid={errors.dob && touched.dob}
-                        errorMessage={errors.dob}
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
                       >
                         <Field
                           name="description"
                           placeholder="Enter Descrption of event"
                           component={Input}
-                          onChange={(e) =>
-                            setData({ ...data, description: e.target.value })
-                          }
+                          value={values.description}
                         ></Field>
                       </FormItem>
                     </div>
-                    <div className="md:grid grid-cols-1 gap-4">
-                      <FormItem
-                        label="Event Start date"
-                        invalid={errors.dob && touched.dob}
-                        errorMessage={errors.dob}
-                      >
-                        <Field name="start" placeholder="Date">
-                          {({ field, form }) => (
-                            <DateTimePicker
-                              field={field}
-                              form={form}
-                              value={field.value}
-                              onChange={(date) => {
-                                setData({ ...data, start: date });
-                              }}
-                            />
-                          )}
-                        </Field>
-                      </FormItem>
-                    </div>
-                    <div className="md:grid grid-cols-1 gap-4">
-                      <FormItem
-                        label="Event End date"
-                        invalid={errors.dob && touched.dob}
-                        errorMessage={errors.dob}
-                      >
-                        <Field name="end" placeholder="Date">
-                          {({ field, form }) => (
-                            <DateTimePicker
-                              field={field}
-                              form={form}
-                              value={field.value}
-                              placeholder="Pick event end date"
-                              onChange={(date) => {
-                                setData({ ...data, end: date });
-                              }}
-                            />
-                          )}
-                        </Field>
-                      </FormItem>
-                    </div>
+
                     <div className="flex justify-end gap-2">
                       <Button
                         loading={isSubmitting}

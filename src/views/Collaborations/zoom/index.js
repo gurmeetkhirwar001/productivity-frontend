@@ -3,169 +3,227 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Button } from "components/ui";
+
 import { gapi } from "gapi-script";
 // import GmailMails from "./maillist";
 import useCloud from "utils/hooks/useCloud";
+import { Button, FormContainer, Input, FormItem } from "components/ui";
+import DateTimePicker from "views/ui-components/forms/DatePicker/DateTimePicker";
+
+import useColaboration from "utils/hooks/useCollaboration";
+import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import ZoomMeetingsTable from "./ZoomMeetings";
+import CommonModal from "components/ui/Modal";
+import { Form, Field, Formik } from "formik";
+import dayjs from "dayjs";
+import { PasswordInput } from "components/shared";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest",
 ];
 const scopes = "https://mail.google.com/";
 export default function GoogleDriveFetch() {
-  const [isLoading, setIsLoadingGoogleDriveApi] = useState(false);
-  const [SignedinUser, setSignedInUser] = useState(null);
-  const [files, setFiles] = useState([]);
-  console.log(SignedinUser);
-  const { CloudConnection } = useCloud();
-  const initClient = () => {
-    setIsLoadingGoogleDriveApi(true);
-    gapi.client
-      .init({
-        apiKey:
-          process.env.REACT_APP_NODE_ENV == "dev"
-            ? process.env.REACT_APP_GOOGLE_DEV_API_KEY
-            : process.env.REACT_APP_API_KEY,
-        clientId:
-          process.env.REACT_APP_NODE_ENV == "dev"
-            ? process.env.REACT_APP_GOOGLE_DEV_CLIENT_ID
-            : process.env.REACT_APP_CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: scopes,
-      })
-      .then(
-        function () {
-          // Listen for sign-in state changes.
-          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-          // gapi.setAccessToken(
-          //   gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
-          // );
-
-          // Handle the initial sign-in state.
-          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        },
-        function (error) {}
-      );
-  };
-  const handleClientLoad = async () => {
-    await gapi.load("client:auth2", initClient);
-    await gapi.client.setToken({
-      access_token: gapi.auth2.getAuthInstance().currentUser.le.xc.id_token,
-    });
-  };
-  const updateSigninStatus = useCallback((isSignedIn) => {
-    console.log(isSignedIn);
-    if (isSignedIn) {
-      // Set the signed in user
-      localStorage.setItem(
-        "gmailtoken",
-        gapi.auth2.getAuthInstance().currentUser.le.xc.id_token
-      );
-      console.log(gapi.auth2.getAuthInstance().currentUser.le.xc.id_token);
-      setSignedInUser(gapi.auth2.getAuthInstance().isSignedIn.get());
-      setIsLoadingGoogleDriveApi(false);
-      // list files if user is authenticated
-      listFiles();
-    } else {
-      // prompt user to sign in
-      handleAuthClick();
-    }
+  const { GetZoomConnect, GetZoomToken, GetZoomMeetings } = useColaboration();
+  const { ColabSlice } = useSelector((state) => state.colab);
+  const [authorizeURL, setAuthorizeURL] = useState("");
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState({
+    start_time: "",
+    agenda: "",
+    topic: "",
+    duration: "",
+    password: "",
   });
   useEffect(() => {
-    async function InitateDrive() {
-      //   await gapi.load("client:auth2", initClient)
-
-      if (localStorage.getItem("gmailtoken")) {
-        await gapi.load("client", initClient);
+    async function getAuthorizeUrl() {
+      const params = { redirect_uri: `${window.location.href}` };
+      if (localStorage.getItem("zoomtoken") == null || undefined) {
+        const response = await GetZoomConnect(params);
+        setAuthorizeURL(response?.data?.message);
       }
-      //   updateSigninStatus(SignedinUser);
-
-      listFiles();
-    }
-    InitateDrive();
-    // eslint-disable-next-line no-use-before-define
-  }, []);
-  /**
-   * List files.
-   */
-  const listFiles = async (searchTerm = null) => {
-    // setIsFetchingGoogleDriveFiles(true);
-    const response = await gapi.client.gmail.users.labels.list({
-      userId: "me",
-    });
-    console.log(response, "responseee");
-    gapi.client.gmail.users.threads
-      .list(
-        {
-          userId: "me",
-          //   pageToken: 10,
-          q: "facebook.com",
-          labelIds: ["IMPORTANT"],
-        },
-        (err, res) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (!res.data.messages) {
-            resolve([]);
-            return;
-          }
-          resolve(res.data.messages);
-        }
-      )
-      .then(async function (response) {
-        // setIsFetchingGoogleDriveFiles(false);
-        // setListDocumentsVisibility(true);
-        const res = JSON.parse(response.body);
-        setFiles(res.threads);
-        let token = localStorage.getItem("gmailtoken");
-        if (token == undefined) {
-          await CloudConnection(
-            { token, files: res.files },
-            "cloud",
-            "googledrive"
+      if (
+        window.location.href.includes("code") &&
+        !localStorage.getItem("zoomtoken")
+      ) {
+        let code = window.location.href.split("?")[1].split("=")[1];
+        const response = await GetZoomToken({
+          code: code,
+          redirect_uri: `${window.location.protocol}/${window.location.host}/app/zoom/meetings`,
+        });
+        if (response.data.responseCode == 201) {
+          localStorage.setItem(
+            "zoomtoken",
+            response?.data?.message?.access_token
+          );
+          localStorage.setItem(
+            "zoomrefreshtoken",
+            response?.data?.message?.refresh_token
           );
         }
-        // setDocuments(res.files);
-      });
-  };
-
-  /**
-   *  Sign in the user upon button click.
-   */
-  const handleAuthClick = (event) => {
-    gapi.auth2.getAuthInstance().signIn();
-  };
-
-  const handleSignOutClick = (event) => {
-    // setListDocumentsVisibility(false);
-    localStorage.removeItem("gmailtoken");
-    gapi.auth2.getAuthInstance().signOut();
-  };
+      }
+      if (localStorage.getItem("zoomtoken")) {
+        const response = await GetZoomMeetings({
+          type: "scheduled",
+          limit: 20,
+        });
+      }
+    }
+    getAuthorizeUrl();
+  }, []);
+  console.log(ColabSlice);
   return (
     <>
       <div className="cloud-connect-container">
-        <h1>Gmail Important Mails</h1>
+        <h1>Zoom</h1>
         {/* {SignedinUser} */}
-        <Button
-          variant="solid"
-          onClick={() =>
-            localStorage.getItem("gmailtoken")
-              ? handleSignOutClick()
-              : handleClientLoad()
-          }
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: "column",
+          }}
         >
-          {localStorage.getItem("gmailtoken")
-            ? "Disconnect Gmail"
-            : "Connect Gmail"}
-        </Button>
+          <Button
+            variant="solid"
+            onClick={() => window.location.replace(authorizeURL)}
+          >
+            {localStorage.getItem("zoomtoken")
+              ? "Disconnect Zoom"
+              : "Connect Zoom"}
+          </Button>
+          <Button
+            variant="solid"
+            className="mt-4"
+            onClick={() => setOpen(!open)}
+          >
+            Create Meeting
+          </Button>
+        </div>
       </div>
-      {/* <div className="mt-4">
-        <GmailMails data={files} className="lg:col-span-3" /> */}
-      {/* {files.map((file) => (
+      <div className="mt-4">
+        <ZoomMeetingsTable
+          data={ColabSlice?.ZoomMeetings || []}
+          className="lg:col-span-3"
+        />
+        <CommonModal open={open} onClose={() => setOpen(false)}>
+          <h2>Create Zoom meeting</h2>
+          <Formik
+            style={{
+              marginTop: 10,
+            }}
+            initialValues={data}
+            enableReinitialize={true}
+            // validationSchema={validationSchema}
+            onSubmit={(values, { setSubmitting }) => {
+              setSubmitting(true);
+              setTimeout(() => {
+                CreateOutLookEvent(values, setSubmitting);
+              }, 1000);
+            }}
+          >
+            {({ values, touched, errors, isSubmitting }) => {
+              return (
+                <Form>
+                  <FormContainer>
+                    <div className="md:grid grid-cols-1 gap-4">
+                      <div className="md:grid grid-cols-1 gap-4">
+                        <FormItem
+                          label="Event Start date"
+                          // invalid={errors.dob && touched.dob}
+                          // errorMessage={errors.dob}
+                        >
+                          <Field name="start_time" placeholder="Date">
+                            {({ field, form }) => (
+                              <DateTimePicker
+                                field={field}
+                                form={form}
+                                value={field.value}
+                                onChange={(date) => {
+                                  setData({
+                                    ...data,
+                                    start: dayjs(date).format(
+                                      "YYYY-MM-DDTHH:mm:ss"
+                                    ),
+                                  });
+                                }}
+                              />
+                            )}
+                          </Field>
+                        </FormItem>
+                      </div>
+                      <FormItem
+                        label="Agenda of Meeting"
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="agenda"
+                          placeholder="Enter Agenda of Meeting"
+                          component={Input}
+                          value={values.agenda}
+                          // onChange={(e) =>
+                          //   setData({ ...data, summary: e.target.value })
+                          // }
+                        ></Field>
+                      </FormItem>
+                      <FormItem
+                        label="Topic of Meeting"
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="topic"
+                          placeholder="Enter topic of event"
+                          component={Input}
+                          value={values.topic}
+                        ></Field>
+                      </FormItem>
+                      <FormItem
+                        label="Password for Meeting"
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="password"
+                          placeholder="Enter password of event"
+                          component={PasswordInput}
+                          value={values.password}
+                        ></Field>
+                      </FormItem>
+                      <FormItem
+                        label="Duration for Meeting (in Minutes)"
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="duration"
+                          placeholder="Enter Duration of Meeting"
+                          component={Input}
+                          max={3}
+                          value={values.duration}
+                        ></Field>
+                      </FormItem>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        loading={isSubmitting}
+                        variant="solid"
+                        type="submit"
+                      >
+                        Create Event
+                      </Button>
+                    </div>
+                  </FormContainer>
+                </Form>
+              );
+            }}
+          </Formik>
+        </CommonModal>
+        {/* {files.map((file) => (
           <li>{file.name}</li>
         ))} */}
-      {/* </div> */}
+      </div>
     </>
   );
 }
