@@ -279,6 +279,18 @@ const appsRoute = [
     authority: [ADMIN, USER],
   },
   {
+    key: "appsmeetings.slack",
+    path: `${APP_PREFIX_PATH}/collaboration/slack`,
+    component: React.lazy(() => import("views/Collaborations/slack")),
+    authority: [ADMIN, USER],
+  },
+  {
+    key: "appsmeetings.clickup",
+    path: `${APP_PREFIX_PATH}/collaboration/clickup`,
+    component: React.lazy(() => import("views/Collaborations/clickup")),
+    authority: [ADMIN, USER],
+  },
+  {
     key: "appnotify.sendgrid",
     path: `${APP_PREFIX_PATH}/notification/sendgrid`,
     component: React.lazy(() => import("views/notifications/sendgrid")),
