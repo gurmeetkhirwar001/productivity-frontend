@@ -17,12 +17,15 @@ const SalesDashboardBody = () => {
   let List = teanant?.teanantUser?.tenantUserList;
   useMemo(() => {
     async function GetList() {
+      const code = user?.user_Code
+        ? user?.user_Code
+        : user?.userDetail?.user_Code;
       const body = {
         ...DefaultBody,
         data: {
-          usercode: user?.user_Code,
+          usercode: code,
         },
-        usercode: user?.user_Code,
+        usercode: code,
         event: "listusertenant",
         action: "get",
       };

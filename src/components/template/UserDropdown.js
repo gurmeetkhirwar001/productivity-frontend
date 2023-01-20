@@ -17,7 +17,7 @@ const dropdownItemList = [
 export const UserDropdown = ({ className }) => {
 
 	const { avatar, name, userName, authority, email } = useSelector(
-    (state) => state.auth.user
+    (state) => state.auth.user || state.auth.userDetail
   );
   const admin = localStorage.getItem("admin");
   const User = JSON.parse(JSON.parse(admin).auth).user;
@@ -33,7 +33,9 @@ export const UserDropdown = ({ className }) => {
       />
       <div className="hidden md:block">
         {/* <div className="text-xs capitalize">{authority[0] || "guest"}</div> */}
-        <div className="font-bold">{userName ? userName : User.user_Name}</div>
+        <div className="font-bold">
+          {userName ? userName : User?.userDetail?.user_Name}
+        </div>
       </div>
     </div>
   );
@@ -53,9 +55,13 @@ export const UserDropdown = ({ className }) => {
             />
             <div>
               <div className="font-bold text-gray-900 dark:text-gray-100">
-              <div className="font-bold">{userName ? userName : User.user_Name}</div>
+                <div className="font-bold">
+                  {userName ? userName : User?.userDetail?.user_Name}
+                </div>
               </div>
-              <div className="text-xs">{email ? email : User.user_Email}</div>
+              <div className="text-xs">
+                {email ? email : User?.userDetail?.user_Email}
+              </div>
             </div>
           </div>
         </Dropdown.Item>

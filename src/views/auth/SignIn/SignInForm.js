@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Input,
   Button,
@@ -18,8 +18,15 @@ import { DefaultBody, encryptMessage } from "utils/common";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
 import AzureLogin from "../Azure";
+import { REDIRECT_URL_KEY } from "constants/app.constant";
+import { useNavigate } from "react-router-dom";
+import useQuery from "../../../utils/hooks/useQuery";
+import appConfig from "configs/app.config";
+import { onSignInSuccess, onSignOutSuccess } from "store/auth/sessionSlice";
+
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { useDispatch } from "react-redux";
 const validationSchema = Yup.object().shape({
   useremail: Yup.string().required("Please enter your user name"),
   password: Yup.string().required("Please enter your password"),
@@ -33,13 +40,25 @@ const SignInForm = (props) => {
     forgotPasswordUrl = "/forgot-password",
     signUpUrl = "/sign-up",
   } = props;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const query = useQuery();
   const msalInstance = new PublicClientApplication(msalConfig);
   const [message, setMessage] = useTimeOutMessage();
   const [data, setData] = useState({
     userName: "",
     password: "",
   });
-  const { signIn } = useAuth();
+  const { signIn, GoogleAuth, SocialSignIn, FbAuth, AzureAuth } = useAuth();
+  useEffect(() => {
+    async function checkToken() {
+      if (window.location.href.includes("token")) {
+        const token = window.location.href.split("=");
+        await SocialSignIn(token[1]);
+      }
+    }
+    checkToken();
+  }, []);
 
   const onSignIn = async (values, setSubmitting) => {
     const { useremail, password } = values;
@@ -66,17 +85,59 @@ const SignInForm = (props) => {
   const HandleSuccessLogin = async (res, source) => {
     signIn(res, "sso", source);
   };
-  const HandleFacebookLogin = async (res, source) => {
-    signIn(
-      {
-        token: res.accessToken,
-        email: res.email,
-        avatar: res.picture.data.url,
-        userName: res.name,
+  const onGoogleLogin = async (res) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
       },
-      "sso",
-      source
-    );
+      usercode: "136",
+      event: "ssogoogle",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await GoogleAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
+  };
+  const HandleFacebookLogin = async (res, source) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
+      },
+      usercode: "136",
+      event: "ssofacebook",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await FbAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
+  };
+  const HandleAzurekLogin = async (res, source) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
+      },
+      usercode: "136",
+      event: "ssoazure",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await AzureAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
   };
   return (
     <div className={className}>
@@ -149,7 +210,7 @@ const SignInForm = (props) => {
                 {isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
               <div className="social-link">
-                <GoogleOAuthProvider
+                {/* <GoogleOAuthProvider
                   clientId="436505811511-7o0gn8mvbf2oi3de520ot4b0ldjmlfkm.apps.googleusercontent.com"
                   onScriptLoadSuccess={(res) => console.log(res)}
                   onScriptLoadError={(err) => console.log(err)}
@@ -164,8 +225,19 @@ const SignInForm = (props) => {
                       border: "none",
                     }}
                   />
-                </GoogleOAuthProvider>
-                <FacebookLogin
+                </GoogleOAuthProvider> */}
+
+                <img
+                  src={"/img/social/google.png"}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onGoogleLogin()}
+                />
+                <img
+                  src={"/img/social/fb.png"}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => HandleFacebookLogin()}
+                />
+                {/* <FacebookLogin
                   appId="1268308690567775"
                   fields="email, name, picture"
                   callback={(res) => HandleFacebookLogin(res, "facebook")}
@@ -175,12 +247,14 @@ const SignInForm = (props) => {
                       onClick={renderProps.onClick}
                     />
                   )}
-                />
+                /> */}
                 {/* <img src="/img/social/saml.png" />
                 <img src="/img/social/aplelogo.png" /> */}
-                <MsalProvider instance={msalInstance}>
-                  <AzureLogin />
-                </MsalProvider>
+                <img
+                  src="/img/social/azure.png"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => HandleAzurekLogin()}
+                />
               </div>
               <div className="mt-4 text-center">
                 <span>Don't have an account yet? </span>
