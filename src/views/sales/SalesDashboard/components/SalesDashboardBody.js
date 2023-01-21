@@ -20,6 +20,7 @@ const SalesDashboardBody = () => {
       const code = user?.user_Code
         ? user?.user_Code
         : user?.userDetail?.user_Code;
+      console.log(user);
       const body = {
         ...DefaultBody,
         data: {

@@ -120,7 +120,7 @@ function useAuth() {
           dispatch(onSignInSuccess(token));
           localStorage.setItem("authtoken", token);
           const { loginId: email, ...restUser } = JSON.parse(
-            resp.data.message.user.responce
+            resp.data.message.user.response
           )[0];
           if (resp.data.message.user) {
             dispatch(
