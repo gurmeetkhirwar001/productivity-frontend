@@ -3,13 +3,11 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-
 import { gapi } from "gapi-script";
 // import GmailMails from "./maillist";
 import useCloud from "utils/hooks/useCloud";
 import { Button, FormContainer, Input, FormItem } from "components/ui";
 import DateTimePicker from "views/ui-components/forms/DatePicker/DateTimePicker";
-
 import useColaboration from "utils/hooks/useCollaboration";
 import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -17,13 +15,15 @@ import ZoomMeetingsTable from "./ZoomMeetings";
 import CommonModal from "components/ui/Modal";
 import { Form, Field, Formik } from "formik";
 import dayjs from "dayjs";
+import moment from "moment-timezone";
+
 import { PasswordInput } from "components/shared";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest",
 ];
 const scopes = "https://mail.google.com/";
 export default function GoogleDriveFetch() {
-  const { GetZoomConnect, GetZoomToken, GetZoomMeetings } = useColaboration();
+  const { GetZoomConnect, GetZoomToken, GetZoomMeetings,createZoomMeeting } = useColaboration();
   const { ColabSlice } = useSelector((state) => state.colab);
   const [authorizeURL, setAuthorizeURL] = useState("");
   const [open, setOpen] = useState(false);
@@ -34,6 +34,18 @@ export default function GoogleDriveFetch() {
     duration: "",
     password: "",
   });
+  const createMeeting = (values) => {
+    const date = moment.tz.guess();
+    let body = {
+      start:values.start,
+      agenda: values.agenda,
+      topic: values.topic,
+      timezone: date,
+      password: values.password,
+    };
+     createZoomMeeting(body)
+    console.log(values)
+  }
   useEffect(() => {
     async function getAuthorizeUrl() {
       const params = { redirect_uri: `${window.location.href}` };
@@ -117,7 +129,7 @@ export default function GoogleDriveFetch() {
             onSubmit={(values, { setSubmitting }) => {
               setSubmitting(true);
               setTimeout(() => {
-                CreateOutLookEvent(values, setSubmitting);
+                createMeeting(values, setSubmitting);
               }, 1000);
             }}
           >

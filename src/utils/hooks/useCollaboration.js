@@ -6,6 +6,7 @@ import {
   SlackToken,
   Clickup,
   ClickupToken,
+  ZoomMeeting
 } from "services/CollaborationService";
 import { setZoommeetings } from "store/colaborations/colaborationsSlice";
 import { useDispatch } from "react-redux";
@@ -36,6 +37,10 @@ function useColaboration() {
     const data = await ClickupToken(body);
     return data;
   };
+  const createZoomMeeting = async (body) => {
+    const data = await ZoomMeeting(body);
+    return data;
+  };
   const GetZoomMeetings = async (body) => {
     const data = await ZoomMeetings(body);
     dispatch(setZoommeetings(data?.data?.message?.meetings));
@@ -45,6 +50,7 @@ function useColaboration() {
     GetZoomConnect,
     GetZoomToken,
     GetZoomMeetings,
+    createZoomMeeting,
     GetSlackConnect,
     GetSlackToken,
     GetCliCkupConnect,
