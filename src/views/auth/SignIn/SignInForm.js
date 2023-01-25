@@ -176,7 +176,7 @@ const SignInForm = (props) => {
                   type="email"
                   autoComplete="off"
                   name="useremail"
-                  placeholder="User Email0`"
+                  placeholder="User Email"
                   component={Input}
                 />
               </FormItem>
