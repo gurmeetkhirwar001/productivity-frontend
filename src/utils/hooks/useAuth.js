@@ -6,6 +6,9 @@ import {
   apiSignUp,
   apiSocial,
   apiValidateUser,
+  googleauth,
+  fbauth,
+  azureauth,
 } from "services/AuthService";
 import { onSignInSuccess, onSignOutSuccess } from "store/auth/sessionSlice";
 import appConfig from "configs/app.config";
@@ -61,7 +64,7 @@ function useAuth() {
                 }
               )
             );
-            
+
             const redirectUrl = query.get(REDIRECT_URL_KEY);
             navigate(
               redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
@@ -74,7 +77,7 @@ function useAuth() {
         } else {
           const { token, email, avatar, userName } = data;
           dispatch(onSignInSuccess(token));
-          localStorage.setItem("authtoken",token)
+          localStorage.setItem("authtoken", token);
 
           const resp = await apiSocial({
             email: email,
@@ -115,9 +118,9 @@ function useAuth() {
           const { app_token: token } = resp.data.message.token;
           console.log(token);
           dispatch(onSignInSuccess(token));
-          localStorage.setItem("authtoken",token)
+          localStorage.setItem("authtoken", token);
           const { loginId: email, ...restUser } = JSON.parse(
-            resp.data.message.user.responce
+            resp.data.message.user.response
           )[0];
           if (resp.data.message.user) {
             dispatch(
@@ -147,6 +150,40 @@ function useAuth() {
         message: errors?.response?.data?.message || errors.toString(),
       };
     }
+  };
+  const SocialSignIn = (token) => {
+    const decoded = jwtDecode(token);
+    dispatch(onSignInSuccess(token));
+    localStorage.setItem("authtoken", token);
+    const { user_Email } = decoded;
+    dispatch(
+      setUser(
+        { email: user_Email, authority: [ADMIN], ...decoded } || {
+          avatar: "",
+          userName: "Anonymous",
+          authority: ["USER"],
+          email: "",
+        }
+      )
+    );
+    const redirectUrl = query.get(REDIRECT_URL_KEY);
+    navigate(redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath);
+    return {
+      status: "success",
+      message: "",
+    };
+  };
+  const GoogleAuth = async (data) => {
+    const response = await googleauth(data);
+    return response;
+  };
+  const FbAuth = async (data) => {
+    const response = await fbauth(data);
+    return response;
+  };
+  const AzureAuth = async (data) => {
+    const response = await azureauth(data);
+    return response;
   };
   const signUp = async (data) => {
     try {
@@ -185,6 +222,10 @@ function useAuth() {
     authenticated: token && signedIn,
     signIn,
     signOut,
+    GoogleAuth,
+    SocialSignIn,
+    FbAuth,
+    AzureAuth,
   };
 }
 

@@ -28,6 +28,27 @@ export async function apiSignIn(data) {
     },
   });
 }
+export async function googleauth(data) {
+  return await BaseService.post("/googleauth/auth", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
+}
+export async function fbauth(data) {
+  return await BaseService.post("/facebook/auth", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
+}
+export async function azureauth(data) {
+  return await BaseService.post("/azure/auth", data, {
+    headers: {
+      token: localStorage?.getItem("apptoken"),
+    },
+  });
+}
 export async function apiSocial(data) {
   return await BaseService.post("/users/social-signup", data, {
     headers: {

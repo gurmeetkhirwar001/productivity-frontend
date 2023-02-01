@@ -73,14 +73,15 @@ const LatestOrder = ({ data, className }) => {
         accessor: "User_Status",
         sortable: true,
         Cell: (props) => {
+          console.log(props.row.original);
           const { User_Status } = props.row.original;
           return (
             <div className="flex items-center">
-              <Badge className={orderStatusColor[User_Status].dotClass} />
+              <Badge className={orderStatusColor[User_Status]?.dotClass} />
               <span
-                className={`ml-2 rtl:mr-2 capitalize font-semibold ${orderStatusColor[User_Status].textClass}`}
+                className={`ml-2 rtl:mr-2 capitalize font-semibold ${orderStatusColor[User_Status]?.textClass}`}
               >
-                {orderStatusColor[User_Status].label}
+                {orderStatusColor[User_Status]?.label}
               </span>
             </div>
           );

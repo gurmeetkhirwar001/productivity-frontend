@@ -64,7 +64,7 @@ const SignUpForm = (props) => {
   });
   const [emailverificationSuccess, setEmailVerificationSuccess] =
     useState(false);
-  const { signIn } = useAuth();
+  const { signIn, GoogleAuth, SocialSignIn, FbAuth, AzureAuth } = useAuth();
   const msalInstance = new PublicClientApplication(msalConfig);
   useEffect(() => {
     async function validateUser(value) {
@@ -151,19 +151,61 @@ const SignUpForm = (props) => {
   const HandleSuccessLogin = async (res, source) => {
     signIn(res, "sso");
   };
-  const HandleFacebookLogin = async (res, source) => {
-    signIn(
-      {
-        token: res.accessToken,
-        email: res.email,
-        avatar: res.picture.data.url,
-        userName: res.name,
+
+  const onGoogleLogin = async (res) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
       },
-      "sso",
-      source
-    );
+      usercode: "136",
+      event: "ssogoogle",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await GoogleAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
   };
-  console.log(formValues, "formvalues");
+  const HandleFacebookLogin = async (res, source) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
+      },
+      usercode: "136",
+      event: "ssofacebook",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await FbAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
+  };
+  const HandleAzurekLogin = async (res, source) => {
+    const body = {
+      ...DefaultBody,
+      data: {
+        useremail: null,
+        userename: null,
+        usermobile: null,
+      },
+      usercode: "136",
+      event: "ssoazure",
+      action: "get",
+    };
+    const databody = encryptMessage(body);
+    const response = await AzureAuth({ body: databody });
+    if (response.data.responseCode === 200) {
+      window.location.href = response.data.message;
+    }
+  };
   return (
     <div className={className}>
       {message && (
@@ -263,23 +305,17 @@ const SignUpForm = (props) => {
                 {isSubmitting ? "Creating Account..." : "Sign Up"}
               </Button>
               <div className="social-link">
-                <GoogleOAuthProvider
-                  clientId="436505811511-7o0gn8mvbf2oi3de520ot4b0ldjmlfkm.apps.googleusercontent.com"
-                  onScriptLoadSuccess={(res) => console.log(res)}
-                  onScriptLoadError={(err) => console.log(err)}
-                >
-                  <GoogleLogin
-                    type="icon"
-                    onSuccess={(res) =>
-                      HandleSuccessLogin(res.credential, "google")
-                    }
-                    onError={(err) => console.log(err)}
-                    style={{
-                      border: "none",
-                    }}
-                  />
-                </GoogleOAuthProvider>
-                <FacebookLogin
+                <img
+                  src={"/img/social/google.png"}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onGoogleLogin()}
+                />
+                <img
+                  src={"/img/social/fb.png"}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => HandleFacebookLogin()}
+                />
+                {/* <FacebookLogin
                   appId="1268308690567775"
                   fields="email, name, picture"
                   callback={(res) => HandleFacebookLogin(res, "facebook")}
@@ -289,13 +325,14 @@ const SignUpForm = (props) => {
                       onClick={renderProps.onClick}
                     />
                   )}
-                  redirectUri={window.location.host}
-                />
+                /> */}
                 {/* <img src="/img/social/saml.png" />
                 <img src="/img/social/aplelogo.png" /> */}
-                <MsalProvider instance={msalInstance}>
-                  <AzureLogin />
-                </MsalProvider>
+                <img
+                  src="/img/social/azure.png"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => HandleAzurekLogin()}
+                />
               </div>
               <div className="mt-4 text-center">
                 <span>Already have an account? </span>
