@@ -30,6 +30,7 @@
 
 .form-explain {
     @apply text-red-500 absolute;
+    
 }
 
 .form-container {

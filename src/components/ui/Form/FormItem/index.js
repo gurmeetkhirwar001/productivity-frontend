@@ -65,7 +65,7 @@ const FormItem = React.forwardRef((props, ref) => {
         return {...style}
     }
 
-    const enterStyle = { opacity: 1, marginTop: 3, bottom: -41}
+    const enterStyle = { opacity: 1, marginTop: 3, bottom: -25}
 	const exitStyle = { opacity: 0, marginTop: -10}
 	const initialStyle =  exitStyle
 
