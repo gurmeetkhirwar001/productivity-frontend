@@ -3,10 +3,10 @@ import { Tabs } from 'components/ui'
 import { labelList } from './utils'
 import { setSelectedTab } from './store/stateSlice'
 import { useSelector, useDispatch } from 'react-redux'
-
+// import {} from "../"
 const { TabNav, TabList } = Tabs
 
-const QuickFilterTab = () => {
+const QuickFilterTab = ({view, setView}) => {
 
 	const dispatch = useDispatch()
 
@@ -17,7 +17,15 @@ const QuickFilterTab = () => {
 	}
 	
 	return (
-		<Tabs value={selectedTab} variant="pill" onChange={handleTabChange}>
+		<>
+		<Tabs value={view} variant="pill" onChange={(value) => dispatch(setView(value))}>
+		<TabList>
+				<TabNav value="list">List</TabNav>
+				<TabNav value="board">Board</TabNav>
+			</TabList>
+			</Tabs>
+			<Tabs value={selectedTab} variant="pill" onChange={handleTabChange}>
+			
 			<TabList>
 				<TabNav value="All">All</TabNav>
 				{labelList.map((tab, index) => (
@@ -25,6 +33,8 @@ const QuickFilterTab = () => {
 				))}
 			</TabList>
 		</Tabs>
+		</>
+		
 	)
 }
 

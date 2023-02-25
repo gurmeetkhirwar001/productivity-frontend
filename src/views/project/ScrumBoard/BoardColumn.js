@@ -6,9 +6,9 @@ import BoardCardList from './BoardCardList'
 const BoardColumn = props => {
 
 	const { title, contents, index, isScrollable, isCombineEnabled, useClone } = props
-
+	console.log(contents,"contents")
 	return (
-		<Draggable draggableId={title} index={index}>
+		<Draggable draggableId={title}  index={index}>
 			{
 				(provided, snapshot) => (
 					<div 
@@ -24,21 +24,26 @@ const BoardColumn = props => {
 							rounded-lg
 						" 
 						ref={provided.innerRef} 
-						{...provided.draggableProps}
+						
 					>
 						<BoardTitle
 							title={title}
-							dragHandleProps={provided.dragHandleProps} 
+							
 						/>
+						{/* <DropZone ref={dropProvided.innerRef}> */}
 						<BoardCardList
 							listId={title}
 							listType="CONTENT"
 							className={snapshot.isDragging ? 'is-dragging' : ''}
-							contents={contents}
+							contents={contents[0][title]}
 							internalScroll={isScrollable}
-							isCombineEnabled={isCombineEnabled}
+							isCombineEnabled={Boolean(isCombineEnabled)}
 							useClone={useClone}
+							dragHandleProps={provided.dragHandleProps} 
+							draggableProps={provided.draggableProps}
 						/>
+						{/* {provided.placeholder}
+						</DropZone> */}
 					</div>
 				)
 			}

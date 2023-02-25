@@ -12,7 +12,7 @@ const appsRoute = [
   {
     key: "appsProject.projectList",
     path: `${APP_PREFIX_PATH}/project/project-list`,
-    component: React.lazy(() => import("views/project/ProjectList")),
+    component: React.lazy(() => import("views/project/ProjectList/components/projectList/vin")),
     authority: [ADMIN, USER],
   },
   {

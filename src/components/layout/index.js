@@ -37,11 +37,13 @@ const Layout = () => {
       !localStorage.getItem("authtoken") &&
       !localStorage.getItem("apptoken")
     ) {
+      console.log("hello token")
       generateAppToken();
     }
   }, [generateAppToken]);
   async function generateAppToken() {
     const response = await apiTokenGeneration();
+    console.log(response,"response")
     localStorage.setItem("apptoken", response.data.message.app_token);
     dispatch(setAppToken(response.data.message.app_token));
   }

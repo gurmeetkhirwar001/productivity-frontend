@@ -36,8 +36,8 @@ const RenameForm = ({title, closeRenameForm, columns, ordered}) => {
 			return elm
 		})
 
-		dispatch(updateColumns(newColumns))
-		dispatch(updateOrdered(newOrder))
+		// dispatch(updateColumns(newColumns))
+		// dispatch(updateOrdered(newOrder))
 		closeRenameForm()
 	}
 
@@ -76,7 +76,7 @@ const RenameForm = ({title, closeRenameForm, columns, ordered}) => {
 
 const BoardTitle = props => {
 
-	const { dragHandleProps, title } = props
+	const { dragHandleProps,draggableProps, title } = props
 
 	const columns = useSelector(state => state.scrumBoard.data.columns)
 	const ordered = useSelector(state => state.scrumBoard.data.ordered)
@@ -121,6 +121,7 @@ const BoardTitle = props => {
 	return (
 		<div 
 			className="board-title px-4 py-3 flex justify-between items-center" 
+			{...dragHandleProps}
 			{...dragHandleProps}
 		>
 			{

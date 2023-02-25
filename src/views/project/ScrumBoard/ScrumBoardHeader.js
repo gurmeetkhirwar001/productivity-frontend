@@ -9,7 +9,7 @@ import { HiOutlineUserAdd, HiOutlineCog } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-const BoardHeader = () => {
+const BoardHeader = ({setView, view}) => {
 
 	const dispatch = useDispatch()
 
@@ -37,7 +37,7 @@ const BoardHeader = () => {
 					<UsersAvatarGroup users={boardMembers} />
 				</div>
 				<div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
-					<QuickFilterTab />
+					<QuickFilterTab setView={setView} view={view}/>
 					<div className="flex items-center gap-2">
 						<Button 
 							size="sm"
@@ -50,6 +50,7 @@ const BoardHeader = () => {
 							icon={<HiOutlineCog />} 
 						/>
 						<BoardAddNewColumn />
+						
 					</div>
 				</div>
 			</Container>

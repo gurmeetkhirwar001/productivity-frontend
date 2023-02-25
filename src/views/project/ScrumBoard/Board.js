@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from 'react'
+import React, { useEffect, lazy, Suspense, useState } from 'react'
 import { Dialog } from 'components/ui'
 import { Droppable, DragDropContext } from 'react-beautiful-dnd'
 import { getBoards } from './store/dataSlice'
@@ -7,49 +7,106 @@ import { updateColumns, updateOrdered } from './store/dataSlice'
 import { closeDialog } from './store/stateSlice'
 import { reorder, reorderQuoteMap } from './utils'
 import BoardColumn from './BoardColumn'
-
+import { getProjects,getTask,updateTasks } from '../ProjectList/components/projectList/getData';
+import { setprojectList, settasklist } from 'store/tasks/project.slice'
+import styled from "@xstyled/styled-components";
+import { colors } from "@atlaskit/theme";
+import { socket } from "utils/socketIO";
 const TicketContent = lazy(() => import('./TicketContent'))
 const AddNewTicketContent = lazy(() => import('./AddNewTicketContent'))
 const AddNewColumnContent = lazy(() => import('./AddNewColumnContent'))
 const AddNewMemberContent = lazy(() => import('./AddNewMemberContent'))
+const Container = styled.div`
+  background-color: ${colors.B100};
+  min-height: 100vh;
+  /* like display:flex but will allow bleeding over the window width */
+  min-width: 100vw;
+  display: inline-flex;
+`;
 
 const Board = props => {
-
 	const { containerHeight, useClone, isCombineEnabled, withScrollableColumns } = props
-
+	const project = useSelector(state => state.tasks.projects)
 	const dispatch = useDispatch()
 
 	const columns = useSelector(state => state.scrumBoard.data.columns)
 	const ordered = useSelector(state => state.scrumBoard.data.ordered)
 	const dialogOpen = useSelector(state => state.scrumBoard.state.dialogOpen)
 	const dialogView = useSelector(state => state.scrumBoard.state.dialogView)
-	
+	const [order, setOrder] = useState([{
+		id: "1",
+		name: "Low",
+		// url: "http://adventuretime.wikia.com/wiki/Jake",
+		// avatarUrl: jakeImg,
+		// colors: {
+		//   soft: colors.Y50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "2",
+		name: "Normal",
+		// url: "http://adventuretime.wikia.com/wiki/BMO",
+		// avatarUrl: bmoImg,
+		// colors: {
+		//   soft: colors.G50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "3",
+		name: "High",
+		// url: "http://adventuretime.wikia.com/wiki/Finn",
+		// avatarUrl: finnImg,
+		// colors: {
+		//   soft: colors.B50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "4",
+		name: "Urgent",
+		// url: "http://adventuretime.wikia.com/wiki/Princess_Bubblegum",
+		// avatarUrl: princessImg,
+		// colors: {
+		//   soft: colors.P50,
+		//   hard: colors.N400A
+		// }
+	  }])
+	  console.log(order,"hiiii")
 	const onDialogClose = () => {
 		dispatch(closeDialog())
 	}
 	useEffect(() => {
-		dispatch(getBoards())
-	}, [dispatch])
-
-	const onDragEnd = result => {
-		if (result.combine) {
-			if (result.type === 'COLUMN') {
-				const shallow = [...ordered]
-				shallow.splice(result.source.index, 1)
-				dispatch(updateOrdered(shallow))
-				return
-			}
-
-			const column = columns[result.source.droppableId]
-			const withQuoteRemoved = [...column]
-			withQuoteRemoved.splice(result.source.index, 1)
-			const newColumns = {
-				...columns,
-				[result.source.droppableId]: withQuoteRemoved,
-			}
-			dispatch(updateColumns(newColumns))
-			return
+		// dispatch(getBoards())
+		// updateTasks(dispatch(settasklist))
+	}, [dispatch],data=>{
+		console.log(data)
+	})
+	const dataForCol = order.map((or) => {
+		const arr = project?.projectlist.filter((pr) => parseInt(pr.tasksstatus) == or.id);
+		return {
+			[or.name]: arr
 		}
+	})
+	console.log(dataForCol,"dataForCol")
+	const onDragEnd = result => {
+		console.log(result,"result")
+		// if (result.combine) {
+		// 	if (result.type === 'COLUMN') {
+		// 		const shallow = [...order]
+		// 		shallow.splice(result.source.index, 1)
+		// 		dispatch(updateOrdered(shallow))
+		// 		return
+		// 	}
+
+		// 	const column = columns[result.source.droppableId]
+		// 	const withQuoteRemoved = [...column]
+		// 	withQuoteRemoved.splice(result.source.index, 1)
+		// 	const newColumns = {
+		// 		...columns,
+		// 		[result.source.droppableId]: withQuoteRemoved,
+		// 	}
+		// 	dispatch(updateColumns(newColumns))
+		// 	return
+		// }
 
 		if (!result.destination) {
 			return
@@ -62,73 +119,54 @@ const Board = props => {
 			return
 		}
 	
-		if (result.type === 'COLUMN') {
-			const newOrdered = reorder(
-				ordered,
-				source.index,
-				destination.index,
-			)
-			dispatch(updateOrdered(newOrdered))
+		if (result.type === 'CONTENT') {
+			const dest = order.find(or => or.name == result.destination.droppableId				)
+			updateTasks({
+				tasksstatus: dest.id,
+				id: Number(result.draggableId)
+			})
+			socket.emit("getTask", true);
+  			socket.on("receive-projects", (data) => dispatch(setprojectList(data)));
 			return
 		}
 		
-		const data = reorderQuoteMap({
-			quoteMap: columns,
-			source,
-			destination,
-		})
+		// const data = reorderQuoteMap({
+		// 	quoteMap: columns,
+		// 	source,
+		// 	destination,
+		// })
 
-		dispatch(updateColumns(data.quoteMap))
+		// dispatch(updateColumns(data.quoteMap))
 	}
 
 	return (
 		<>
-			<DragDropContext onDragEnd={result => onDragEnd(result)}>
-				<Droppable
-					droppableId="board"
-					type="COLUMN"
-					direction="horizontal"
-					ignoreContainerClipping={containerHeight}
-					isCombineEnabled={isCombineEnabled}
-				>
-					{(provided) => (
-					<div 
-						className="scrumboard flex flex-col flex-auto w-full h-full mb-2" 
-						ref={provided.innerRef} 
-						{...provided.droppableProps}
-					>	
-						<div className="scrumboard-body flex max-w-full overflow-x-auto h-full mt-4">
-							{ordered.map((key, index) => (
-								<BoardColumn
-									key={key}
-									index={index}
-									title={key}
-									contents={columns[key]}
-									isScrollable={withScrollableColumns}
-									isCombineEnabled={isCombineEnabled}
-									useClone={useClone}
-								/>
-							))}
-							{provided.placeholder}
-						</div>
-					</div>
-					)}
-				</Droppable>
-			</DragDropContext>
-			<Dialog
-				isOpen={dialogOpen}
-				onClose={onDialogClose}
-				onRequestClose={onDialogClose}
-				width={dialogView !== 'TICKET' ? 520 : 800}
-				closable={dialogView !== 'TICKET'}
-			>
-				<Suspense fallback={<></>}>
-					{ dialogView === 'TICKET' && <TicketContent onTicketClose={onDialogClose} /> }
-					{ dialogView === 'NEW_TICKET' && <AddNewTicketContent /> }
-					{ dialogView === 'NEW_COLUMN' && <AddNewColumnContent />}
-					{ dialogView === 'ADD_MEMBER' && <AddNewMemberContent />}
-				</Suspense>
-			</Dialog>
+			 <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable
+          droppableId="board"
+          type="COLUMN"
+          direction="horizontal"
+          ignoreContainerClipping={Boolean(containerHeight)}
+          isCombineEnabled={isCombineEnabled}
+        >
+          {(provided) => (
+            <Container ref={provided.innerRef} {...provided.droppableProps}>
+              {order.map((key, index) => (
+                <BoardColumn
+                  key={key.id}
+                  index={index}
+                  title={key.name}
+                  contents={dataForCol.filter((da) => Object.keys(da).toString() == key.name)}
+                  isScrollable={withScrollableColumns}
+                  isCombineEnabled={isCombineEnabled}
+                  useClone={useClone}
+                />
+              ))}
+              {provided.placeholder}
+            </Container>
+          )}
+        </Droppable>
+      </DragDropContext>
 		</>
 	)
 }

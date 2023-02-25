@@ -72,10 +72,10 @@ export const createCardObject = () => {
 }
 
 export const taskLabelColors = {
-	'Live issue': 'bg-rose-500',
-	'Task': 'bg-blue-500',
-	'Bug': 'bg-amber-400',
-	'Low priority': 'bg-indigo-500'
+	'High': 'bg-rose-500',
+	'Normal': 'bg-blue-500',
+	'Urgent': 'bg-amber-400',
+	'Low': 'bg-indigo-500'
 }
 
 export const labelList = ['Task', 'Bug', 'Live issue', 'Low priority']

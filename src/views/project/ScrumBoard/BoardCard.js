@@ -19,13 +19,30 @@ const BoardCard = forwardRef((props, ref) => {
 	const { listId, cardData, data, ...rest } = props
 
 	const { id, name, comments, attachments, members, dueDate, labels } = data
-
+	const authors = [
+		{
+		  id: 1,
+		  text: "Low",
+		},
+		{
+		  id: 2,
+		  text: "Normal",
+		},
+		{
+		  id: 3,
+		  text: "High",
+		},
+		{
+		  id: 4,
+		  text: "Urgent",
+		},
+	  ];
 	const onCardClick = () => {
 		dispatch(openDialog())
 		dispatch(updateDialogView('TICKET'))
 		dispatch(setSelectedTicketId(id))
 	}
-
+	const labelss = authors.find((aut) => aut.id == data?.tasksstatus)
 	return (
 		<Card 
 			ref={ref}
@@ -39,24 +56,20 @@ const BoardCard = forwardRef((props, ref) => {
 			clickable
 			onClick={() => onCardClick()}
 			{...rest}
+			
 		>
 			{
-				labels.length > 0 
-				&& 
-				<>
-					{labels.map((label, index) => (
+				
 						<Tag
-							key={label + index}
+							// key={label + index}
 							className="mr-2 rtl:ml-2 mb-2" 
 							prefix 
-							prefixClass={`${taskLabelColors[label]}`}
+							prefixClass={`${taskLabelColors[labelss.text]}`}
 						>
-							{label}
+							{labelss.text}
 						</Tag>
-					))}
-				</>
-			}
-			<h6 className="mb-2">{name}</h6>
+				}
+			<h6 className="mb-2">{data?.tasksname}</h6>
 			{
 				dueDate 
 				&& 
@@ -72,7 +85,7 @@ const BoardCard = forwardRef((props, ref) => {
 				<UsersAvatarGroup avatarProps={{size: 25}} users={members} />
 				<div className="flex items-center gap-2">
 					{
-						comments.length > 0 
+						comments?.length > 0 
 						&& 
 						<IconText
 							className="font-semibold" 
@@ -81,7 +94,7 @@ const BoardCard = forwardRef((props, ref) => {
 							{comments.length}
 						</IconText>}
 					{
-						attachments.length > 0 
+						attachments?.length > 0 
 						&& 
 						<IconText
 							icon={<HiOutlinePaperClip/>}
