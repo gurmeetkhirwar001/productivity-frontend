@@ -28,6 +28,20 @@ export async function apiSignIn(data) {
     },
   });
 }
+export async function apiuserprofileupdate(data) {
+  return await BaseService.patch("/users/update-profile", data, {
+    headers: {
+      token: localStorage?.getItem("authtoken"),
+    },
+  });
+}
+export async function apiuserpasswordupdate(data) {
+  return await BaseService.patch("/users/update-password", data, {
+    headers: {
+      token: localStorage?.getItem("authtoken"),
+    },
+  });
+}
 export async function googleauth(data) {
   return await BaseService.post("/googleauth/auth", data, {
     headers: {
@@ -68,6 +82,13 @@ export async function apiValidateUser(data) {
   return await BaseService.post("/users/validate-user", data, {
     headers: {
       token: localStorage?.getItem("apptoken"),
+    },
+  });
+}
+export async function apigetprofile(data) {
+  return await BaseService.post("/users/getProfile", data, {
+    headers: {
+      token: localStorage?.getItem("authtoken"),
     },
   });
 }
