@@ -64,17 +64,19 @@ function CreateProject({setOpen}) {
     const {createProjectaction} = useProjectTask()
   const survey = new Model(surveyJson);
   const {user} = useSelector(state => state.auth)
+  const dispatch=useDispatch()
     useEffect(() => {
         async function submitData(){
             survey?.onComplete.add(async (senderData,options) => {
+                console.log(senderData.data,"senderData")
                 const body = {
                     ...DefaultBody,
                     data: {
                         usercode:user?.user_Code,
-                        tenantcode:user?.tenant_Code,
+                        tenantcode:10181,
                         typecode:1001,
                         formcode:123,
-                        projectname:senderData.data.projectname,
+                        projectname:senderData.data.ProjectName,
                         projectshortname:senderData.data.projectshortname,
                         projectscript:[{}],
                         projectconfig:[{}],
@@ -95,22 +97,28 @@ function CreateProject({setOpen}) {
                   const databody = encryptMessage(body);
                 const payload = await createProjectaction({body: databody})
                 console.log(payload,"payload")
-                // console.log(senderData.data)
-                // socket.emit('createTask',{
-                   
-                //         'tasksname':senderData.data.TaskName,
-                //         'tasksdescription':senderData.data.TaskDescription,
-                //         'tasksstatus':senderData.data.TaskStatus,
-                //         'taskproject':1,
-                // })
-                // socket.on('task-message',() => {
-                //     socket.emit("getTask", true);
-                //     socket.on("receive-task", (data) => {
-                //         console.log(data)
-                //         dispatch(settasklist(data.data));
-                //         dispatch(setCreateModal(false))
-                //         });
-                // })
+                console.log(senderData.data,"???????????????????")
+                  const body2 = {
+                    ...DefaultBody,
+                    data:{
+                        usercode: user?.user_Code,
+                        tenantcode: 10181
+                    },
+                    usercode: user?.user_Code,
+                    event:'tenantuserprojectlist',
+                    action: 'get'
+                  }
+                  const databody2 = encryptMessage(body2)
+                socket.emit("getProject", {
+                    body:databody2,
+                    token: localStorage.getItem('authtoken')
+                });
+                socket.on("receive-projects", (data) => {
+                    console.log(data,"hahahqwer123456543234566543456")
+                    dispatch(settasklist(data.data));
+                    dispatch(setCreateModal(false))
+                    });
+               
                 
                
             })

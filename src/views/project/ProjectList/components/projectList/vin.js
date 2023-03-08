@@ -1,7 +1,8 @@
 import React from 'react';
-import TreeList, { Column, RowDragging } from 'devextreme-react/tree-list';
+import TreeList, { Column, RowDragging,Button as Treebutton } from 'devextreme-react/tree-list';
 import CheckBox from 'devextreme-react/check-box';
 import { Button } from 'components/ui'
+import {} from "react-router-dom"
  import { createTask,getTask,getProjects } from "./getData";
 import 'devextreme/dist/css/dx.light.css';
 import { connect } from 'react-redux';
@@ -9,6 +10,8 @@ import {settasklist,setprojectList,setCreateModal} from "store/tasks/project.sli
 import CreateProjectModal from './projectModal';
 import {getProjectTypeList} from "store/tasks/project.slice" 
 import { DefaultBody, encryptMessage } from "utils/common";
+import { withRouter } from 'utils/hoc/withRouter';
+import { Button as DevButton } from 'devextreme-react';
 const expandedRowKeys = [1];
 class App extends React.Component {
   constructor(props) {
@@ -38,7 +41,7 @@ class App extends React.Component {
         action: "get",
       };
       const databody = encryptMessage(body);
-      getProjects(this.props.setprojectList)
+      getProjects(this.props.user,this.props.setprojectList)
       this.props.getProjectTypeList({body: databody})
     }
   }
@@ -55,12 +58,15 @@ class App extends React.Component {
           id="tasks"
           dataSource={ this.props?.tasks?.projectlist}
           rootValue={-1}
-          keyExpr="id"
+          keyExpr="projectcode"
           showRowLines={true}
           showBorders={true}
           parentIdExpr="Head_ID"
           defaultExpandedRowKeys={expandedRowKeys}
           columnAutoWidth={true}
+          onRowClick={((row) => {
+            this.props.navigate('/app/project/scrum-board')
+            localStorage.setItem('projectcode',row.data.projectcode)})}
         >
 
           <RowDragging
@@ -69,10 +75,17 @@ class App extends React.Component {
             allowDropInsideItem={this.state.allowDropInsideItem}
             allowReordering={this.state.allowReordering}
             showDragIcons={this.state.showDragIcons}
+          
           />
-          <Column dataField="name" caption="projectname" />
+          <Column dataField="projectname" caption="projectname" />
           <Column dataField="tasksname"  />
           <Column dataField="tasksstatus" />
+          <Column  type="buttons">
+          <Treebutton
+                    name="save"
+                    cssClass="my-class"
+                />
+          </Column>
          
           {/* <Column dataField="Mobile_Phone" /> */}
         </TreeList>
@@ -182,4 +195,4 @@ const mapStatetoprops = (state) => ({
 tasks: state.tasks.projects,
 user: state.auth.user
 })
-export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList})(App);
+export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList})(withRouter(App));
