@@ -75,6 +75,7 @@ export default function DropboxFetch() {
     setDropBoxfiles([]);
   };
   const UploadDropBoxFiles = async (file) => {
+    console.log(file)
     await DropBoxUploadFile(file);
     const files = await DropBoxFetchFiles();
     setDropBoxfiles(files?.entries);

@@ -3,8 +3,9 @@ import { Button } from 'components/ui'
 import { useDispatch } from 'react-redux'
 import { openDialog, updateDialogView } from './store/stateSlice'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
+import { setCreateModal } from 'store/tasks/project.slice'
 
-const BoardAddNewColumn = () => {
+const BoardAddNewColumn = ({}) => {
 
 	const dispatch = useDispatch()
 
@@ -14,7 +15,7 @@ const BoardAddNewColumn = () => {
 	}
 
 	return (
-		<Button size="sm" icon={<HiOutlinePlusCircle />} onClick={onAddNewColumn}>
+		<Button size="sm" icon={<HiOutlinePlusCircle />} onClick={() => dispatch(setCreateModal(true))}>
 			<span>New Board</span>
 		</Button>
 	)

@@ -5,6 +5,7 @@ import NewProjectDialog from './components/NewProjectDialog'
 import { Container } from 'components/shared'
 import reducer from './store'
 import { injectReducer } from 'store/index'
+import "./index.css"
 
 injectReducer('projectList', reducer)
 

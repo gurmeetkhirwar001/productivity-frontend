@@ -13,7 +13,9 @@
   .App-link {
     color: #dd1590;
   }
-  
+  .arrowclass{
+    display: none!important;
+}
   @keyframes App-logo-spin {
     from {
       transform: rotate(0deg);

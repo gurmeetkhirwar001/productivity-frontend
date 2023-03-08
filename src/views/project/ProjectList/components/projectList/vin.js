@@ -1,10 +1,14 @@
 import React from 'react';
 import TreeList, { Column, RowDragging } from 'devextreme-react/tree-list';
 import CheckBox from 'devextreme-react/check-box';
+import { Button } from 'components/ui'
  import { createTask,getTask,getProjects } from "./getData";
 import 'devextreme/dist/css/dx.light.css';
 import { connect } from 'react-redux';
-import {settasklist,setprojectList} from "store/tasks/project.slice"
+import {settasklist,setprojectList,setCreateModal} from "store/tasks/project.slice"
+import CreateProjectModal from './projectModal';
+import {getProjectTypeList} from "store/tasks/project.slice" 
+import { DefaultBody, encryptMessage } from "utils/common";
 const expandedRowKeys = [1];
 class App extends React.Component {
   constructor(props) {
@@ -24,14 +28,28 @@ class App extends React.Component {
   componentDidMount(){
     console.log(this.props?.tasks?.activetab,"this.props?.tasks?.activetab")
     if(this.props?.tasks?.activetab == 'list'){
-
+      const body = {
+        ...DefaultBody,
+        data: {
+            usercode:this.props?.user && this.props.user?.user_Code,
+        },
+        usercode:this.props?.user && this.props.user?.user_Code,
+        event: "projecttype",
+        action: "get",
+      };
+      const databody = encryptMessage(body);
       getProjects(this.props.setprojectList)
+      this.props.getProjectTypeList({body: databody})
     }
   }
+
   render() {
-    // console.log(this.props.tasks && this.props?.tasks)
+    console.log(this.props.user,"user")
     return (
       <div>
+        <Button size="sm"  onClick={() => this.props.setCreateModal(true)}>
+			<span>New Project</span>
+		</Button>
         
         <TreeList
           id="tasks"
@@ -60,6 +78,7 @@ class App extends React.Component {
         </TreeList>
 
         <div className="options">
+
           <div className="caption">Options</div>
           <div className="options-container">
             <div className="option">
@@ -82,9 +101,11 @@ class App extends React.Component {
                 text="Show Drag Icons"
                 onValueChanged={this.onShowDragIconsChanged}
               />
+
             </div>
           </div>
         </div>
+        <CreateProjectModal/>
       </div>
     );
   }
@@ -158,6 +179,7 @@ class App extends React.Component {
   }
 }
 const mapStatetoprops = (state) => ({
-tasks: state.tasks.projects
+tasks: state.tasks.projects,
+user: state.auth.user
 })
-export default connect(mapStatetoprops,{settasklist,setprojectList})(App);
+export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList})(App);

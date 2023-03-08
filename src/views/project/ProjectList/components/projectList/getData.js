@@ -22,7 +22,7 @@ export async function getTask(settasklist) {
   socket.on("receive-task", (data) => settasklist(data.data));
 }
 
-export async function getProjects(type,dispatch, setprojectList) {
+export async function getProjects( setprojectList) {
   
   socket.emit("getProject", true);
   socket.on("receive-projects", (data) => setprojectList(data));

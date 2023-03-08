@@ -20,7 +20,7 @@ function InnerList(props) {
 		<div className="board-dropzone h-full" ref={dropProvided.innerRef}>
 			<div className="px-4 h-full" >
 				{contents?.map((item, index) => (
-					<Draggable key={item.id} draggableId={String(item.id)} index={index}>
+					<Draggable key={item.id} draggableId={String(item.id)} index={index} >
 						{dragProvided => (
 							<>
 								<BoardCard

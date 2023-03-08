@@ -112,16 +112,19 @@ export async function DropBoxFiles(params) {
   );
 }
 export async function UploadDropBoxFiles(params) {
+  console.log(params,"params")
   const apiarg = {
     path: `/${params[0].name}`,
     mode: "add",
     autorename: true,
     mute: false,
   };
+  const data = new FormData()
+  data.append('file',params[0])
   console.log(apiarg);
   return await axios.post(
     "https://content.dropboxapi.com/2/files/upload",
-    params,
+    params[0],
     {
       headers: {
         "Content-Type": "application/octet-stream",

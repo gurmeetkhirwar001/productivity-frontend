@@ -9,7 +9,7 @@ import { HiOutlineUserAdd, HiOutlineCog } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-const BoardHeader = ({setView, view}) => {
+const BoardHeader = ({setView, view, setOpen}) => {
 
 	const dispatch = useDispatch()
 
@@ -49,7 +49,7 @@ const BoardHeader = ({setView, view}) => {
 							onClick={() => navigate('/app/account/settings/profile')} 
 							icon={<HiOutlineCog />} 
 						/>
-						<BoardAddNewColumn />
+						<BoardAddNewColumn setOpen={setOpen}/>
 						
 					</div>
 				</div>
