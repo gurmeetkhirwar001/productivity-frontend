@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DatePicker, Button, Dialog, Input } from "components/ui";
 import { setStartDate, setEndDate } from "../store/stateSlice";
 import { getSalesDashboardData } from "../store/dataSlice";
@@ -6,6 +6,7 @@ import { HiOutlineFilter, HiPlus } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { DefaultBody, encryptMessage } from "utils/common";
 import useUser from "utils/hooks/useUser";
+import useAuth from "utils/hooks/useAuth";
 // import Input from "views/ui-components/forms/Input";
 
 const dateFormat = "MMM DD, YYYY";
@@ -24,13 +25,28 @@ const SalesDashboardHeader = () => {
   const startDate = useSelector(
     (state) => state.salesDashboard.state.startDate
   );
+  const { getUserP } = useAuth();
   const endDate = useSelector((state) => state.salesDashboard.state.endDate);
-
   const handleDateChange = (value) => {
     dispatch(setStartDate(value[0]));
     dispatch(setEndDate(value[1]));
   };
-
+  useEffect(() => {
+    async function GetUserProfile() {
+      let body = {
+        ...DefaultBody,
+        data: {
+          usercode: user && user?.user_Code,
+        },
+        usercode: user && user?.user_Code,
+        action: "get",
+        event: "userprofileget",
+      };
+      const encryptedbody = encryptMessage(body);
+      await getUserP({ body: encryptedbody });
+    }
+    GetUserProfile();
+  }, []);
   const onFilter = () => {
     dispatch(getSalesDashboardData());
   };

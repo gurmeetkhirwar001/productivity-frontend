@@ -1,5 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, initialState } from "store/auth/userSlice";
+import {
+  setUser,
+  initialState,
+  GetProfile,
+  UpdateProfile,
+  UpdateProfilePassword,
+} from "store/auth/userSlice";
 import {
   apiSignIn,
   apiSignOut,
@@ -202,7 +208,43 @@ function useAuth() {
       };
     }
   };
-
+  const getUserP = async (data) => {
+    return await dispatch(GetProfile(data));
+  };
+  const UpdateUserProfile = async (data) => {
+    try {
+      const res = await dispatch(UpdateProfile(data));
+      console.log(res, "resss");
+      if (res.payload.is_success == true) {
+        return {
+          status: "success",
+          message: "User Updated SuccessFully",
+        };
+      }
+    } catch (e) {
+      return {
+        status: "failed",
+        message: e?.response?.data?.message || e.toString(),
+      };
+    }
+  };
+  const UpdateUserPassword = async (data) => {
+    try {
+      const res = await dispatch(UpdateProfilePassword(data));
+      console.log(res, "resss");
+      if (res.payload.is_success == true) {
+        return {
+          status: "success",
+          message: "User Updated SuccessFully",
+        };
+      }
+    } catch (e) {
+      return {
+        status: "failed",
+        message: e?.response?.data?.message || e.toString(),
+      };
+    }
+  };
   const handleSignOut = () => {
     dispatch(onSignOutSuccess());
     dispatch(setUser(initialState));
@@ -226,6 +268,9 @@ function useAuth() {
     SocialSignIn,
     FbAuth,
     AzureAuth,
+    getUserP,
+    UpdateUserProfile,
+    UpdateUserPassword,
   };
 }
 
