@@ -101,22 +101,22 @@ export async function UpdateTask(user,senderData, setprojectList) {
     return databody2
 }
 
-export async function UpdateProject() {
-  const body2 = {
-    ...DefaultBody,
-    data: {
-      usercode: user?.user_Code,
-      pm_FK:localStorage.getItem("projectcode") , 
-      tenant_FK:10181,
-      current_State:senderData,
+// export async function UpdateProject() {
+//   const body2 = {
+//     ...DefaultBody,
+//     data: {
+//       usercode: user?.user_Code,
+//       pm_FK:localStorage.getItem("projectcode") , 
+//       tenant_FK:10181,
+//       current_State:senderData,
       
-    },
-    usercode: user?.user_Code,
-    event: "projectupdate",
-    action: "update",
-  };
-  const databody2 = encryptMessage(body2);
-  socket.emit("updateProject",{ body: databody2,
-    token: localStorage.getItem("authtoken")} );
-    return databody2
-}
+//     },
+//     usercode: user?.user_Code,
+//     event: "projectupdate",
+//     action: "update",
+//   };
+//   const databody2 = encryptMessage(body2);
+//   socket.emit("updateProject",{ body: databody2,
+//     token: localStorage.getItem("authtoken")} );
+//     return databody2
+// }
