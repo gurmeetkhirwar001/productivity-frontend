@@ -17,6 +17,26 @@ export async function CreateNewProject(data) {
     },
   });
 }
+export async function UpdateProject(data) {
+  const AuthTOken = localStorage.getItem("authtoken")
+    ? localStorage.getItem("authtoken")
+    : localStorage.getItem("apptoken");
+  return await BaseService.patch("/tasks/updateProject", data, {
+    headers: {
+      token: AuthTOken,
+    },
+  });
+}
+export async function CloneProject(data) {
+  const AuthTOken = localStorage.getItem("authtoken")
+    ? localStorage.getItem("authtoken")
+    : localStorage.getItem("apptoken");
+  return await BaseService.patch("/tasks/cloneProject", data, {
+    headers: {
+      token: AuthTOken,
+    },
+  });
+}
 export async function GetprojectTypeList(data) {
     const AuthTOken = localStorage.getItem("authtoken")
       ? localStorage.getItem("authtoken")

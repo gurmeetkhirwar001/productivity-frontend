@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CreateNewProject ,GetprojectTypeList} from "services/projecttaskservices";
+import { CloneProject, CreateNewProject ,GetprojectTypeList, UpdateProject} from "services/projecttaskservices";
 
 export const initialState = {
   projectlist: [],
@@ -9,11 +9,34 @@ export const initialState = {
   newprojecterror:'',
   selectedTask:{},
   editModal: false,
-  createModal: false
+  createModal: false,
+  cloneModal: false,
+  selectedProject:{}
 };
+
+
+
 export const CreateProject = createAsyncThunk('task/projectcreate',async (data,{getState, dispatch}) => {
   try{
     const response = await CreateNewProject(data)
+
+    return response.data
+  }catch(e){
+    return e.response
+  }
+})
+export const CUpdateProject = createAsyncThunk('task/updatecreate',async (data,{getState, dispatch}) => {
+  try{
+    const response = await UpdateProject(data)
+
+    return response.data
+  }catch(e){
+    return e.response
+  }
+})
+export const CCloneProject = createAsyncThunk('task/clone',async (data,{getState, dispatch}) => {
+  try{
+    const response = await CloneProject(data)
 
     return response.data
   }catch(e){
@@ -51,6 +74,12 @@ export const ProjectsSlice = createSlice({
     },
     setCreateModal: (state, action) => {
       state.createModal = action.payload
+    },
+    setCloneModal: (state, action) => {
+      state.cloneModal = action.payload
+    },
+    setEditProjectModal: (state, action) => {
+      state.selectedProject = action.payload
     }
   },
   extraReducers:(builder) =>{
@@ -58,6 +87,18 @@ export const ProjectsSlice = createSlice({
       state.newProject = action.payload
     })
     builder.addCase(CreateProject.rejected, (state, action) => {
+      state.newprojecterror = action.payload
+    })
+    builder.addCase(CUpdateProject.fulfilled,(state, action) => {
+      state.newProject = action.payload
+    })
+    builder.addCase(CUpdateProject.rejected, (state, action) => {
+      state.newprojecterror = action.payload
+    })
+    builder.addCase(CCloneProject.fulfilled,(state, action) => {
+      state.newProject = action.payload
+    })
+    builder.addCase(CCloneProject.rejected, (state, action) => {
       state.newprojecterror = action.payload
     })
     builder.addCase(getProjectTypeList.fulfilled,(state, action) => {
@@ -70,6 +111,6 @@ export const ProjectsSlice = createSlice({
   }
 });
 
-export const { setprojectList, settasklist, setActiveTab,setSelectedTask, setEditModal, setCreateModal } = ProjectsSlice.actions;
+export const { setprojectList, settasklist, setActiveTab,setSelectedTask, setEditModal, setCreateModal,setEditProjectModal,setCloneModal } = ProjectsSlice.actions;
 
 export default ProjectsSlice.reducer;

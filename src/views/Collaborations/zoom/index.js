@@ -23,7 +23,8 @@ const DISCOVERY_DOCS = [
 ];
 const scopes = "https://mail.google.com/";
 export default function GoogleDriveFetch() {
-  const { GetZoomConnect, GetZoomToken, GetZoomMeetings,createZoomMeeting } = useColaboration();
+  const { GetZoomConnect, GetZoomToken, GetZoomMeetings, createZoomMeeting } =
+    useColaboration();
   const { ColabSlice } = useSelector((state) => state.colab);
   const [authorizeURL, setAuthorizeURL] = useState("");
   const [open, setOpen] = useState(false);
@@ -33,35 +34,48 @@ export default function GoogleDriveFetch() {
     topic: "",
     duration: "",
     password: "",
+    subject:""
   });
-  const createMeeting = (values) => {
+  const createMeeting = async (values) => {
     const date = moment.tz.guess();
-    let body = {
-      start:values.start,
+    let body = JSON.stringify( {
+      start: values.start,
       agenda: values.agenda,
       topic: values.topic,
       timezone: date,
       password: values.password,
-    };
-     createZoomMeeting(body)
-    console.log(values)
-  }
+      subject: values.subject
+    });
+    createZoomMeeting(body);
+    setOpen(!open)
+    const response = await GetZoomMeetings({
+      type: "scheduled",
+      limit: 20,
+    })
+  };
   useEffect(() => {
     async function getAuthorizeUrl() {
       const params = { redirect_uri: `${window.location.href}` };
+
       if (localStorage.getItem("zoomtoken") == null || undefined) {
         const response = await GetZoomConnect(params);
         setAuthorizeURL(response?.data?.message);
       }
+
       if (
-        window.location.href.includes("code") &&
-        !localStorage.getItem("zoomtoken")
+        (window.location.href.includes("code") &&
+          localStorage.getItem("zoomtoken") == null) ||
+        undefined
       ) {
-        let code = window.location.href.split("?")[1].split("=")[1];
+        let code = await window.location.href.split("?")[1].split("=")[1];
+        console.log(code, "code");
+
         const response = await GetZoomToken({
           code: code,
           redirect_uri: `${window.location.protocol}/${window.location.host}/app/zoom/meetings`,
-        });
+        })
+        console.log(response, "code");
+
         if (response.data.responseCode == 201) {
           localStorage.setItem(
             "zoomtoken",
@@ -77,12 +91,14 @@ export default function GoogleDriveFetch() {
         const response = await GetZoomMeetings({
           type: "scheduled",
           limit: 20,
-        });
+        }
+        );
+        console.log(response,"bccccccccccccccccc")
       }
     }
     getAuthorizeUrl();
   }, []);
-  console.log(ColabSlice);
+  console.log(ColabSlice,);
   return (
     <>
       <div className="cloud-connect-container">
@@ -173,6 +189,21 @@ export default function GoogleDriveFetch() {
                           placeholder="Enter Agenda of Meeting"
                           component={Input}
                           value={values.agenda}
+                          // onChange={(e) =>
+                          //   setData({ ...data, summary: e.target.value })
+                          // }
+                        ></Field>
+                      </FormItem>
+                      <FormItem
+                        label="Subject of Meeting"
+                        // invalid={errors.dob && touched.dob}
+                        // errorMessage={errors.dob}
+                      >
+                        <Field
+                          name="subject"
+                          placeholder="Enter Subject of Meeting"
+                          component={Input}
+                          value={values.subject}
                           // onChange={(e) =>
                           //   setData({ ...data, summary: e.target.value })
                           // }

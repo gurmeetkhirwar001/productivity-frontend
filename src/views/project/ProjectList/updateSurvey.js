@@ -49,28 +49,79 @@ const options = [
 const surveyJson = {
   elements: [
     {
-      name: "TaskName",
+      name: "taskname",
       title: "Enter your Task Name:",
       type: "text",
       isRequired: true,
     },
     {
-      name: "TaskDescription",
-      title: "TaskDescription",
-      type: "editor",
+      name: "taskdescription",
+      title: "Enter your Task Description:",
+      type: "text",
       isRequired: true,
     },
     {
       type: "dropdown",
-      name: "TaskStatus",
+      name: "taskstatus",
       title: "Task Status",
       isRequired: true,
       choices: [
-        { text: "TODO", value: 1 },
-        { text: "INPROGRESS", value: 2 },
-        { text: "QA", value: 3 },
-        { text: "COMPLETED", value: 4 },
+        { text: "TODO", value: "To Do" },
+        { text: "INPROGRESS", value: "In Progress" },
+        { text: "QA", value: "Qa" },
+        { text: "COMPLETED", value: "Completed" },
       ],
+    },
+    {
+      type: "dropdown",
+      name: "taskpriorties",
+      title: "Task Priorties",
+      isRequired: true,
+      choices: [
+        { text: "Low", value: 1 },
+        { text: "High", value: 2 },
+        { text: "Medium", value: 3 },
+      ],
+    },
+    {
+      name: "storypoint",
+      title: "Enter your Story Point:",
+      type: "text",
+      isRequired: true,
+    },
+    {
+      name: "shortdescription",
+      title: "Enter your Task Short Description:",
+      type: "text",
+      isRequired: true,
+    },
+    {
+      name: "Start_DT",
+      type: "text",
+      title: "Start Date of Task",
+      inputType: "date",
+      isRequired: true,
+    },
+    {
+      name: "Start_TS",
+      type: "text",
+      title: "Start time of Task",
+      inputType: "time",
+      isRequired: true,
+    },
+    {
+      name: "due_DT",
+      type: "text",
+      title: "Due Date of Task",
+      inputType: "date",
+      isRequired: true,
+    },
+    {
+      name: "Due_TS",
+      type: "text",
+      title: "Due time of Task",
+      inputType: "time",
+      isRequired: true,
     },
   ],
 };
@@ -95,7 +146,7 @@ if (!self.alreadyRendered) {
 
 function UpdateSurvey({ setFile, onSubmit }) {
   const dispatch = useDispatch();
-  const { selectedTask } = useSelector((state) => state.tasks.projects);
+  const { selectedTask } = useSelector((state) => state.tasks.projects.projectlist);
   const survey = new Model(surveyJson);
   const options = [
     { value: "uploadfile", label: "Upload File" },
@@ -106,7 +157,6 @@ function UpdateSurvey({ setFile, onSubmit }) {
   const [buttonvalue, setButtonvalue] = useState("uploadfile");
   const [disabled, setdisabled] = useState(false);
 
- 
   async function uploadFile(e) {
     if (buttonvalue == "googledrive") {
       console.log(e);
@@ -150,9 +200,16 @@ function UpdateSurvey({ setFile, onSubmit }) {
   useEffect(() => {
     async function UpdateData() {
       survey.data = {
-        TaskName: selectedTask && selectedTask?.tasksname,
-        TaskDescription: selectedTask && selectedTask?.tasksdescription,
-        TaskStatus: selectedTask && selectedTask?.tasksstatus,
+        TaskName: selectedTask && selectedTask?.taskname,
+        taskdescription: selectedTask && selectedTask?.rr_Desc,
+        taskstatus: selectedTask && selectedTask?.current_State,
+        taskpriorties: selectedTask && selectedTask?.priority_Desc,
+        storypoint: selectedTask && selectedTask?.Story_Point,
+        shortdescription: selectedTask && selectedTask?.rr_Short_Desc,
+        Start_DT: selectedTask && selectedTask?.Start_DT,
+        start_TS: selectedTask && selectedTask?.start_TS,
+        Due_TS: selectedTask && selectedTask?.Due_TS,
+        due_DT: selectedTask && selectedTask?.due_DT,
       };
       survey?.onComplete.add((getData, options) => {
         console.log(getData.data);
@@ -162,6 +219,21 @@ function UpdateSurvey({ setFile, onSubmit }) {
           tasksdescription: getData.data.TaskDescription,
           tasksstatus: getData.data.TaskStatus,
           taskproject: getData.data.taskproject,
+          // usercode: user?.user_Code,
+          tenantcode: 10181,
+          typecode: 1001,
+          formcode: 123,
+          shortdescription: getData.data.projectshortname,
+          projectscript: [{}],
+          projectconfig: [{}],
+          projectoptions: [{}],
+          projectthemes: [{}],
+          projectremark: [{}],
+          formscript: [{}],
+          startdate: getData.data.startdate,
+          starttime: getData.data.starttime,
+          duedate: getData.data.duedate,
+          duettime: getData.data.duettime,
         });
         socket.on("task-message", () => {
           socket.emit("getTask", true);

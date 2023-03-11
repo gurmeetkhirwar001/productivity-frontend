@@ -67,7 +67,7 @@ export default function GoogleDriveFetch() {
       listFiles();
     } else {
       // prompt user to sign in
-      handleAuthClick();
+      setSignedInUser(false)
     }
   });
   useEffect(() => {
@@ -76,14 +76,20 @@ export default function GoogleDriveFetch() {
 
       if (localStorage.getItem("gmailtoken")) {
         await gapi.load("client", initClient);
+        setSignedInUser(false)
       }
       //   updateSigninStatus(SignedinUser);
-
-      listFiles();
+      if (localStorage.getItem("gmailtoken")) {
+       
+        listFiles();
+        setSignedInUser(true)
+      }else{
+        setSignedInUser(false)
+      }
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
-  }, []);
+  }, [SignedinUser]);
   /**
    * List files.
    */
@@ -98,7 +104,7 @@ export default function GoogleDriveFetch() {
         {
           userId: "me",
           //   pageToken: 10,
-          q: "facebook.com",
+          q: "f",
           labelIds: ["IMPORTANT"],
         },
         (err, res) => {
@@ -141,6 +147,8 @@ export default function GoogleDriveFetch() {
     // setListDocumentsVisibility(false);
     localStorage.removeItem("gmailtoken");
     gapi.auth2.getAuthInstance().signOut();
+    setSignedInUser(false)
+    setFiles([])
   };
   return (
     <>
@@ -150,9 +158,9 @@ export default function GoogleDriveFetch() {
         <Button
           variant="solid"
           onClick={() =>
-            localStorage.getItem("gmailtoken")
+            SignedinUser == true
               ? handleSignOutClick()
-              : handleClientLoad()
+              : handleAuthClick()
           }
         >
           {localStorage.getItem("gmailtoken")
@@ -161,7 +169,7 @@ export default function GoogleDriveFetch() {
         </Button>
       </div>
       <div className="mt-4">
-        <GmailMails data={files} className="lg:col-span-3" />
+        <GmailMails data={files || []} className="lg:col-span-3" />
         {/* {files.map((file) => (
           <li>{file.name}</li>
         ))} */}

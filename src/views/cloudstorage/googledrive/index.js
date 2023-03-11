@@ -4,9 +4,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Alert, Button } from "components/ui";
-// import { gapi } from "gapi-script";
+import { gapi } from "gapi-script";
 import DriveFiles from "./driveFiles";
 import useCloud from "utils/hooks/useCloud";
+import axios from "axios";
+import { UploadDropBoxFiles } from "services/CloudStorageService";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
@@ -103,10 +105,14 @@ if(window.location.href.includes("access_token")){
   const acc=window.location.href.split('&')[1].split("=")[1]
   localStorage.setItem("gdrivetoken",acc)
   setSignedInUser(true)
-  window.location.href = window.location.href.split("#")[0]
+  // window.location.href = window.location.href.split("#")[0]
+  gapi.client.setAccessToken(
+    acc
+    );
+
 }
       //   updateSigninStatus(SignedinUser);
-
+listFiles()
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
@@ -116,20 +122,20 @@ if(window.location.href.includes("access_token")){
    */
   const listFiles = (searchTerm = null) => {
     // setIsFetchingGoogleDriveFiles(true);
-    gapi.client.drive.files
-      .list({
-        pageSize: 10,
-        fields: "nextPageToken, files(id, name, mimeType, modifiedTime)",
-        q: searchTerm,
-      })
+   axios.get('https://www.googleapis.com/drive/v3/files',{
+    headers:{
+      Authorization: `Bearer ${localStorage.getItem('gdrivetoken')}`
+    }
+   })
       .then(async function (response) {
         // setIsFetchingGoogleDriveFiles(false);
         // setListDocumentsVisibility(true);
-        const res = JSON.parse(response.body);
-        setFiles(res.files);
+        console.log(response.data.files)
+        // const res = JSON.parse(response.body);
+        setFiles(response.data.files);
         let token = localStorage.getItem("gdrivetoken");
         await CloudConnection(
-          { token, files: res.files },
+          { token, files: response.data.files },
           "cloud",
           "googledrive"
         );
@@ -137,19 +143,33 @@ if(window.location.href.includes("access_token")){
       });
   };
   const UploadFiles = (files) => {
-    const fileMetaData = {
-      name: files[0].name,
-    };
-    const media = {
-      mimeType: files[0].type,
-      body: files[0],
-    };
-    gapi.client.drive.files
-      .create({
-        resource: fileMetaData,
-        media: media,
-        fields: "id",
-      })
+    let file = files;
+      const form = new FormData();
+
+      form.append(
+        "metadata",
+        new Blob(
+          [
+            JSON.stringify({
+              name: file[0].name,
+              mimeType: file[0].type,
+            }),
+          ],
+          { type: "application/json" }
+        )
+      );
+      form.append("file", file[0]);
+
+      fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=name,webViewLink,id,mimeType",
+        {
+          method: "POST",
+          headers: new Headers({
+            Authorization: "Bearer " + localStorage.getItem("gdrivetoken"),
+          }),
+          body: form,
+        }
+      )
       .then((res) => {
         setOpen(!open);
         listFiles();
@@ -186,12 +206,12 @@ if(window.location.href.includes("access_token")){
         <Button
           variant="solid"
           onClick={() =>
-     SignedinUser == true
+     localStorage.getItem('gdrivetoken')
               ? handleSignOutClick()
               : handleClientLoad()
           }
         >
-          {     SignedinUser == true
+          {     localStorage.getItem('gdrivetoken')
 
 
             ? "Disconnect"

@@ -20,8 +20,10 @@ export const ZoomMeeting = async (body) => {
   const result = await BaseService.post("/zoom/createMeeting", body, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("zoomtoken")}`,
+      
     },
   });
+  console.log(result,"RESULT")
   return result;
 };
 export const SlackToken = async (body) => {

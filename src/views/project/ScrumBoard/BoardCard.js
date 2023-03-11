@@ -26,29 +26,51 @@ const BoardCard = forwardRef((props, ref) => {
 	const { listId, cardData, data, ...rest } = props
 
 	const { id, name, comments, attachments, members, dueDate, labels } = data
-	const authors = [
-		{
-		  id: 1,
-		  text: "Low",
-		},
-		{
-		  id: 2,
-		  text: "Normal",
-		},
-		{
-		  id: 3,
-		  text: "High",
-		},
-		{
-		  id: 4,
-		  text: "Urgent",
-		},
+	const authors = [{
+		id: "1",
+		name: "To Do",
+		// url: "http://adventuretime.wikia.com/wiki/Jake",
+		// avatarUrl: jakeImg,
+		// colors: {
+		//   soft: colors.Y50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "2",
+		name: "IN Progress",
+		// url: "http://adventuretime.wikia.com/wiki/BMO",
+		// avatarUrl: bmoImg,
+		// colors: {
+		//   soft: colors.G50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "3",
+		name: "Qa",
+		// url: "http://adventuretime.wikia.com/wiki/Finn",
+		// avatarUrl: finnImg,
+		// colors: {
+		//   soft: colors.B50,
+		//   hard: colors.N400A
+		// }
+	  },{
+		id: "4",
+		name: "Completed",
+		// url: "http://adventuretime.wikia.com/wiki/Princess_Bubblegum",
+		// avatarUrl: princessImg,
+		// colors: {
+		//   soft: colors.P50,
+		//   hard: colors.N400A
+		// }
+	  }
 	  ];
 	const onCardClick = () => {
 		dispatch(setEditModal(true))
  		dispatch(setSelectedTask(data))
 	}
-	const labelss = authors.find((aut) => aut.id == data?.tasksstatus)
+	console.log(data,"priority_Desc")
+	const labelss = authors.find((aut) => aut.name == data?.priority_Desc || aut.id == Number(data?.priority_Desc) )
+	console.log(labelss,"labelss")
 	return (
 		<>
 		<Card 
@@ -71,12 +93,12 @@ const BoardCard = forwardRef((props, ref) => {
 							// key={label + index}
 							className="mr-2 rtl:ml-2 mb-2" 
 							prefix 
-							prefixClass={`${taskLabelColors[labelss.text]}`}
+							prefixClass={`${taskLabelColors[labelss.name]}`}
 						>
 							{labelss.text}
 						</Tag>
 				}
-			<h6 className="mb-2">{data?.tasksname}</h6>
+			<h6 className="mb-2">{data?.rr_Desc}</h6>
 			{
 				dueDate 
 				&& 
