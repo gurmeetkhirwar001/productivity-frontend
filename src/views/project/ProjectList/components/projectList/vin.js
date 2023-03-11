@@ -5,7 +5,7 @@ import  { TreeList, Editing, Column, RowDragging,RequiredRule, Lookup, Button as
 
 import CheckBox from 'devextreme-react/check-box';
 import { Button } from 'components/ui'
-import {} from "react-router-dom"
+import {Navigate} from "react-router-dom"
  import { createTask,getTask,getProjects } from "./getData";
 import EditProject from './EditProject';
 import { connect } from 'react-redux';
@@ -61,6 +61,16 @@ class App extends React.Component {
       // this.props.setCreateModal(true)}}>Edit</Button>
   }>Edit</Button>
 }
+viewButtonRender = (row) => {
+  console.log(row,"row")
+  return <Button variant="solid" size="sm" onClick={() =>{
+   localStorage.setItem("projectcode",row.data.projectcode)
+   this.props.navigate('/app/project/scrum-board')
+
+  }
+    // this.props.setCreateModal(true)}}>Edit</Button>
+}>View Tasks</Button>
+}
   CloneRender = (row) => {
     return <Button size="sm" onClick={() => {this.props.setCloneModal(true)
       this.props.setEditProjectModal(row.data)
@@ -104,6 +114,8 @@ class App extends React.Component {
           <Column dataField="tasksname"  />
           <Column dataField="tasksstatus" />
           <Column dataField={"projectcode"}  caption="Edit"  cellRender={this.editButtonRender}/>
+          <Column dataField={"viewtask"}  caption="View Task"  cellRender={this.viewButtonRender}/>
+
           <Column dataField={"Clone"} cellRender={this.CloneRender}/>
           <Column dataField={"activestatus"} cellRender={this.UpdateStatusRender}/>
          
