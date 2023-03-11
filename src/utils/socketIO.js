@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-export var socket = io.connect("http://localhost:5000",{reconnect: true})
+export var socket = io.connect("http://localhost:9000",{reconnect: true})
 ;
 
 socket.on('connect', () => { console.log(socket.connected);  });
