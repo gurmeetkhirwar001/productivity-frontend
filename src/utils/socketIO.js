@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-export var socket = io.connect("http://localhost:9000/socket", {
+export var socket = io.connect("https://app.productivitys.com/socket", {
   reconnect: true,
 });
 
