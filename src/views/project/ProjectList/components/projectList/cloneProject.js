@@ -4,7 +4,7 @@ import { Survey } from 'survey-react-ui';
 import { useEffect } from 'react';
 import {socket} from "utils/socketIO"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCreateModal, settasklist } from 'store/tasks/project.slice';
+import { setCreateModal, setprojectList, setEditProjectModal,setCloneModal } from 'store/tasks/project.slice';
 import { DefaultBody, encryptMessage } from "utils/common";
 
 import useProjectTask from 'utils/hooks/useProjectask';
@@ -60,12 +60,27 @@ const surveyJson = {
  ]
 };
 
-function CreateProject({setOpen}) {
-    const {createProjectaction} = useProjectTask()
+function CloneProject({setOpen}) {
+    const {createProjectaction,UpdateProjectaction} = useProjectTask()
   const survey = new Model(surveyJson);
-  const {user} = useSelector(state => state.auth)   
+  const {user} = useSelector(state => state.auth)  
+  const { selectedProject } = useSelector((state) => state.tasks.projects);
+    console.log(selectedProject,"selectedProject")
   const dispatch=useDispatch()
     useEffect(() => {
+        survey.data = {
+            ProjectName: selectedProject && selectedProject?.projectname,
+            projectshortname: selectedProject && selectedProject?.projectshortname,
+            projectremark: selectedProject && selectedProject?.projectremark,
+            taskpriorties: selectedProject && selectedProject?.priority_Desc,
+            startdate: selectedProject && selectedProject?.startdate,
+            // shortdescription: selectedProject && selectedProject?.rr_Short_Desc,
+            starttime: selectedProject && selectedProject?.starttime,
+            startdate: selectedProject && selectedProject?.startdate,
+            duetime: selectedProject && selectedProject?.duettime,
+            duedate: selectedProject && selectedProject?.duedate,
+          };
+
         async function submitData(){
             survey?.onComplete.add(async (senderData,options) => {
                 console.log(senderData.data,"senderData")
@@ -91,11 +106,12 @@ function CreateProject({setOpen}) {
 
                     },
                     usercode:user?.user_Code,
-                    event: "projectadd",
-                    action: "create",
+                    event: "projectupdate",
+                    action: "update",
                   };
                   const databody = encryptMessage(body);
-                const payload = await createProjectaction({body: databody})
+                const payload = await UpdateProjectaction({body: databody})
+                dispatch(setCloneModal(false))
                 console.log(payload,"payload")
                 console.log(senderData.data,"???????????????????")
                   const body2 = {
@@ -115,8 +131,8 @@ function CreateProject({setOpen}) {
                 });
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
-                    dispatch(settasklist(data.data));
-                    dispatch(setCreateModal(false))
+                    dispatch(setprojectList(data.data));
+                    dispatch(setEditProjectModal(false))
                     });
                
                 
@@ -129,4 +145,4 @@ function CreateProject({setOpen}) {
   return <Survey model={survey}  />;
 }
 
-export default CreateProject;
+export default CloneProject;

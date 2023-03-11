@@ -89,24 +89,27 @@ export default function GoogleCalendar() {
       // list files if user is authenticated
       listFiles();
     } else {
-      // prompt user to sign in
-      handleAuthClick();
+     setSignedInUser(false)
     }
   });
   useEffect(() => {
     async function InitateDrive() {
       //   await gapi.load("client:auth2", initClient)
-      if (localStorage.getItem("gcalendartoken")) {
+      if (!localStorage.getItem("gcalendartoken")) {
         await gapi.load("client", initClient);
+        setSignedInUser(false)
       }
       //   updateSigninStatus(SignedinUser);
       if (localStorage.getItem("gcalendartoken")) {
+       
         listFiles();
+      }else{
+        setSignedInUser(false)
       }
     }
     InitateDrive();
     // eslint-disable-next-line no-use-before-define
-  }, [SignedinUser]);
+  }, [SignedinUser,localStorage.getItem("gcalendartoken")]);
   /**
    * List files.
    */
@@ -181,6 +184,8 @@ export default function GoogleCalendar() {
     // setListDocumentsVisibility(false);
     localStorage.removeItem("gcalendartoken");
     gapi.auth2.getAuthInstance().signOut();
+    setFiles([])
+    // window.location.reload()
   };
   const handleCreateEvent = (values) => {
     const date = moment.tz.guess();
@@ -216,27 +221,36 @@ export default function GoogleCalendar() {
       })
       .catch((err) => console.log(err));
   };
+  console.log(localStorage.getItem("gcalendartoken"),"localStorage.getItem(gcalendartoken)")
   return (
     <>
       <div className="cloud-connect-container">
         <h1>Google Calendar</h1>
         {/* {SignedinUser} */}
         <div className="d-flex justify-content-between">
+          {SignedinUser == false ? <Button
+            variant="solid"
+            style={{
+              marginRight: "1rem",
+            }}
+            onClick={() =>
+              handleAuthClick()
+            }
+          >
+           Connect Google Calendar
+          </Button> :
           <Button
             variant="solid"
             style={{
               marginRight: "1rem",
             }}
             onClick={() =>
-              localStorage.getItem("gcalendartoken") == undefined
-                ? handleClientLoad()
-                : handleSignOutClick()
+                handleSignOutClick()
             }
           >
-            {localStorage.getItem("gcalendartoken") == undefined
-              ? "Connect Google Calendar"
-              : "Disconnect Calendar"}
-          </Button>
+           
+              Disconnect Calendar
+          </Button>}
           <Button variant="solid" onClick={() => setOpen(!open)}>
             Create Event
           </Button>

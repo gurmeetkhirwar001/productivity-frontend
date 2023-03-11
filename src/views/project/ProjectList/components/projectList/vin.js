@@ -1,14 +1,22 @@
 import React from 'react';
-import TreeList, { Column, RowDragging } from 'devextreme-react/tree-list';
+import 'devextreme/dist/css/dx.light.css';
+
+import  { TreeList, Editing, Column, RowDragging,RequiredRule, Lookup, Button as TreeButton,} from 'devextreme-react/tree-list';
+
 import CheckBox from 'devextreme-react/check-box';
 import { Button } from 'components/ui'
+import {Navigate} from "react-router-dom"
  import { createTask,getTask,getProjects } from "./getData";
-import 'devextreme/dist/css/dx.light.css';
+import EditProject from './EditProject';
 import { connect } from 'react-redux';
-import {settasklist,setprojectList,setCreateModal} from "store/tasks/project.slice"
+import {settasklist,setprojectList,setCreateModal,setEditProjectModal,setCloneModal} from "store/tasks/project.slice"
 import CreateProjectModal from './projectModal';
 import {getProjectTypeList} from "store/tasks/project.slice" 
 import { DefaultBody, encryptMessage } from "utils/common";
+import { withRouter } from 'utils/hoc/withRouter';
+import EditProjectModal from './editProjectModal';
+import CloneProject from './cloneProject';
+import CloneProjectModal from './cloneModal';
 const expandedRowKeys = [1];
 class App extends React.Component {
   constructor(props) {
@@ -23,6 +31,7 @@ class App extends React.Component {
       allowDropInsideItem: true,
       allowReordering: true,
       showDragIcons: true,
+      open: false
     };
   }
   componentDidMount(){
@@ -38,11 +47,38 @@ class App extends React.Component {
         action: "get",
       };
       const databody = encryptMessage(body);
-      getProjects(this.props.setprojectList)
+      getProjects(this.props.user,this.props.setprojectList)
       this.props.getProjectTypeList({body: databody})
     }
   }
+  editButtonRender = (row) => {
+    console.log(row,"row")
+    return <Button variant="solid" size="sm" onClick={() =>{
+      this.props.setEditProjectModal(row.data)
+      this.props.setCreateModal(true)
 
+    }
+      // this.props.setCreateModal(true)}}>Edit</Button>
+  }>Edit</Button>
+}
+viewButtonRender = (row) => {
+  console.log(row,"row")
+  return <Button variant="solid" size="sm" onClick={() =>{
+   localStorage.setItem("projectcode",row.data.projectcode)
+   this.props.navigate('/app/project/scrum-board')
+
+  }
+    // this.props.setCreateModal(true)}}>Edit</Button>
+}>View Tasks</Button>
+}
+  CloneRender = (row) => {
+    return <Button size="sm" onClick={() => {this.props.setCloneModal(true)
+      this.props.setEditProjectModal(row.data)
+    }}>Clone</Button>
+  }
+  UpdateStatusRender = (data) => {
+    return <Button size="sm" color={data.value == 0 ? 'red-500': 'green-500'} variant="solid">Status</Button>
+  }
   render() {
     console.log(this.props.user,"user")
     return (
@@ -55,12 +91,15 @@ class App extends React.Component {
           id="tasks"
           dataSource={ this.props?.tasks?.projectlist}
           rootValue={-1}
-          keyExpr="id"
+          keyExpr="projectcode"
           showRowLines={true}
           showBorders={true}
           parentIdExpr="Head_ID"
           defaultExpandedRowKeys={expandedRowKeys}
           columnAutoWidth={true}
+          // onRowClick={((row) => {
+          //   this.props.navigate('/app/project/scrum-board')
+          //   localStorage.setItem('projectcode',row.data.projectcode)})}
         >
 
           <RowDragging
@@ -69,10 +108,16 @@ class App extends React.Component {
             allowDropInsideItem={this.state.allowDropInsideItem}
             allowReordering={this.state.allowReordering}
             showDragIcons={this.state.showDragIcons}
+          
           />
-          <Column dataField="name" caption="projectname" />
+          <Column dataField="projectname" caption="projectname" />
           <Column dataField="tasksname"  />
           <Column dataField="tasksstatus" />
+          <Column dataField={"projectcode"}  caption="Edit"  cellRender={this.editButtonRender}/>
+          <Column dataField={"viewtask"}  caption="View Task"  cellRender={this.viewButtonRender}/>
+
+          <Column dataField={"Clone"} cellRender={this.CloneRender}/>
+          <Column dataField={"activestatus"} cellRender={this.UpdateStatusRender}/>
          
           {/* <Column dataField="Mobile_Phone" /> */}
         </TreeList>
@@ -105,7 +150,8 @@ class App extends React.Component {
             </div>
           </div>
         </div>
-        <CreateProjectModal/>
+        <EditProjectModal />
+        <CloneProjectModal />
       </div>
     );
   }
@@ -182,4 +228,4 @@ const mapStatetoprops = (state) => ({
 tasks: state.tasks.projects,
 user: state.auth.user
 })
-export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList})(App);
+export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList,setEditProjectModal,setCloneModal})(withRouter(App));

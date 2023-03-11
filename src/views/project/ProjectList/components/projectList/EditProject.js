@@ -4,7 +4,7 @@ import { Survey } from 'survey-react-ui';
 import { useEffect } from 'react';
 import {socket} from "utils/socketIO"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCreateModal, settasklist } from 'store/tasks/project.slice';
+import { setCreateModal, setprojectList, setEditProjectModal, setCloneModal } from 'store/tasks/project.slice';
 import { DefaultBody, encryptMessage } from "utils/common";
 
 import useProjectTask from 'utils/hooks/useProjectask';
@@ -21,51 +21,30 @@ const surveyJson = {
     type: "text",
     isRequired: true
   },
-  {
-    name: "projectremark",
-    title: "Enter your Project Remark:",
-    type: "text",
-    isRequired: true
-  },
-  {
-    "name": "startdate",
-    "type": "text",
-    "title": "Start Date of Project",
-    "inputType": "date",
-    "isRequired": true
-  },
-  {
-    name: "starttime",
-    "type": "text",
-    "title": "Start time of Project",
-    "inputType": "time",
-    "isRequired": true
-  },
-  {
-    name: "duedate",
-    "type": "text",
-    "title": "Due Date of Project",
-    "inputType": "date",
-    "isRequired": true
-  },
-  {
-    name: "duetime",
-    "type": "text",
-    "title": "Due time of Project",
-    "inputType": "time",
-    "isRequired": true
-  },
-
-
  ]
 };
 
-function CreateProject({setOpen}) {
-    const {createProjectaction} = useProjectTask()
+function EditProject({setOpen}) {
+    const {createProjectaction,UpdateProjectaction,CloneProjectaction} = useProjectTask()
   const survey = new Model(surveyJson);
-  const {user} = useSelector(state => state.auth)   
+  const {user} = useSelector(state => state.auth)  
+  const { selectedProject } = useSelector((state) => state.tasks.projects);
+    console.log(selectedProject,"selectedProject")
   const dispatch=useDispatch()
     useEffect(() => {
+        survey.data = {
+            ProjectName: selectedProject && selectedProject?.projectname,
+            projectshortname: selectedProject && selectedProject?.projectshortname,
+            projectremark: selectedProject && selectedProject?.projectremark,
+            taskpriorties: selectedProject && selectedProject?.priority_Desc,
+            startdate: selectedProject && selectedProject?.startdate,
+            // shortdescription: selectedProject && selectedProject?.rr_Short_Desc,
+            starttime: selectedProject && selectedProject?.starttime,
+            startdate: selectedProject && selectedProject?.startdate,
+            duetime: selectedProject && selectedProject?.duettime,
+            duedate: selectedProject && selectedProject?.duedate,
+          };
+
         async function submitData(){
             survey?.onComplete.add(async (senderData,options) => {
                 console.log(senderData.data,"senderData")
@@ -73,29 +52,20 @@ function CreateProject({setOpen}) {
                     ...DefaultBody,
                     data: {
                         usercode:user?.user_Code,
-                        tenantcode:10181,
-                        typecode:1001,
+                        tenantcode:user?.tenant_Code,
+                        typecode:selectedProject.typecode,
+                        projectcode: selectedProject.projectcode,
                         formcode:123,
                         projectname:senderData.data.ProjectName,
                         projectshortname:senderData.data.projectshortname,
-                        projectscript:[{}],
-                        projectconfig:[{}],
-                        projectoptions:[{}],
-                        projectthemes:[{}],
-                        projectremark:[{}],
-                        formscript:[{}],
-                        startdate:senderData.data.startdate,
-                        starttime:senderData.data.starttime,
-                        duedate:senderData.data.duedate,
-                        duettime:senderData.data.duettime,
-
                     },
                     usercode:user?.user_Code,
-                    event: "projectadd",
+                    event: "quickprojectclone",
                     action: "create",
                   };
                   const databody = encryptMessage(body);
-                const payload = await createProjectaction({body: databody})
+                const payload = await CloneProjectaction({body: databody})
+                dispatch(setCloneModal(false))
                 console.log(payload,"payload")
                 console.log(senderData.data,"???????????????????")
                   const body2 = {
@@ -115,8 +85,8 @@ function CreateProject({setOpen}) {
                 });
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
-                    dispatch(settasklist(data.data));
-                    dispatch(setCreateModal(false))
+                    dispatch(setprojectList(data.data));
+                    dispatch(setEditProjectModal(false))
                     });
                
                 
@@ -129,4 +99,4 @@ function CreateProject({setOpen}) {
   return <Survey model={survey}  />;
 }
 
-export default CreateProject;
+export default EditProject;

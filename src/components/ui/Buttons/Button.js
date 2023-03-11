@@ -10,6 +10,7 @@ import Spinner from '../Spinner'
 
 const Button =  React.forwardRef((props, ref) => {
 	const { children, size, color, shape, variant, block, icon, className, disabled, loading, active, danger, ...rest } = props
+	console.log(color,"color")
 	const { themeColor, controlSize, primaryColorLevel } = useConfig()
 	const formControlSize = useForm()?.size
 	const inputGroupSize = useInputGroup()?.size
@@ -21,7 +22,8 @@ const Button =  React.forwardRef((props, ref) => {
 	const buttonSize = size || inputGroupSize || formControlSize || controlSize
 	const buttonColor = splitedColor[0] || themeColor
 	const buttonColorLevel = splitedColor[1] || primaryColorLevel
-
+	console.log(buttonColor,"color")
+	console.log(buttonColorLevel,"color")
 	const [increaseLevel, decreaseLevel] = useColorLevel(buttonColorLevel)
 
 	const getButtonSize = () => {

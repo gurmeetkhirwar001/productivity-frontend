@@ -77,7 +77,7 @@ import DataGrid, { Column } from "devextreme-react/data-grid";
 
 import CheckBox from 'devextreme-react/check-box';
 //  import { createTask,getTask,getProjects } from "./getData";
-import { getProjects,getTask } from '../ProjectList/components/projectList/getData';
+import { getProjects,getTask, getTaskList } from '../ProjectList/components/projectList/getData';
 import 'devextreme/dist/css/dx.light.css';
 import { connect } from 'react-redux';
 import {settasklist,setprojectList} from "store/tasks/project.slice"
@@ -95,11 +95,16 @@ class App extends React.Component {
  
     };
   }
-  componentDidMount(){
-    getTask(this.props.setprojectList)
+  componentDidMount() {
+    console.log(this.props?.user,"this.props?.user")
+    getTaskList(this.props.user, Number(localStorage.getItem('projectcode')), this.props.setprojectList);
   }
+  renderCell = (data) => {
+    console.log(data,"dadad")
+    return <div style={{ color: data.value == 1 ? "green" : 'red' }}>{data.value == 1 ? "Active" : 'Closed'}</div>;
+};
   render() {
-    // console.log(this.props.tasks && this.props?.tasks)
+    console.log(this.props.tasks && this.props?.tasks)
     return (
       <div>
         
@@ -107,7 +112,7 @@ class App extends React.Component {
           id="tasks"
           dataSource={ this.props?.tasks?.projectlist}
           rootValue={-1}
-          keyExpr="id"
+          keyExpr="Id"
           showRowLines={true}
           showBorders={true}
           parentIdExpr="Head_ID"
@@ -122,14 +127,16 @@ class App extends React.Component {
             allowReordering={this.state.allowReordering}
             showDragIcons={this.state.showDragIcons}
           /> */}
-          <Column dataField="id" positon="id" />
+          <Column dataField="Id" positon="Id" />
+           
+          <Column dataField="rr_Desc" caption={"Task Description"}/>
+          <Column dataField="current_State" caption={"Task State"}/>
+          <Column dataField="Start_DT" caption={"Start Date"}/>
+          <Column dataField="priority_Desc" />
 
-          <Column dataField="tasksname" positon="tasksname" />
-          <Column dataField="tasksdescription" />
-          <Column dataField="taskscreatedat" />
-          <Column dataField="tasksupdatedat" />
-
-          <Column dataField="tasksstatus" />
+          <Column dataField="active" caption={"Status"}  cellRender={this.renderCell}>
+            
+            </Column>
          
           {/* <Column dataField="Mobile_Phone" /> */}
         </DataGrid>
@@ -233,6 +240,7 @@ class App extends React.Component {
   }
 }
 const mapStatetoprops = (state) => ({
-tasks: state.tasks.projects
+tasks: state.tasks.projects,
+user: state.auth.user
 })
 export default connect(mapStatetoprops,{settasklist,setprojectList})(App);

@@ -7,7 +7,7 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 import "devextreme/dist/css/dx.light.css";
 import { setprojectList, settasklist } from "store/tasks/project.slice";
-import { getTask } from "../ProjectList/components/projectList/getData"; 
+import { getTaskList } from "../ProjectList/components/projectList/getData"; 
 import { connect } from "react-redux";
 class Grid extends React.Component {
   constructor(props) {
@@ -57,7 +57,7 @@ class Grid extends React.Component {
     // });
   }
   componentDidMount() {
-    getTask(this.props.setprojectList);
+    getTaskList(this.props?.user && this.props.user?.user_Code, localStorage.getItem('projectcode'), this.props.setprojectList);
   }
   render() {
 
@@ -92,5 +92,6 @@ class Grid extends React.Component {
 }
 const mapStatetoprops = (state) => ({
   tasks: state.tasks.projects,
+  user: state.auth.user
 });
 export default connect(mapStatetoprops, { settasklist, setprojectList })(Grid);
