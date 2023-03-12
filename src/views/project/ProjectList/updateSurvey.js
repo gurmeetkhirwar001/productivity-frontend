@@ -146,11 +146,8 @@ if (!self.alreadyRendered) {
 
 function UpdateSurvey({ setFile, onSubmit }) {
   const dispatch = useDispatch();
-  const { selectedTask } = useSelector(
-    (state) => state.tasks.projects
-  );
+  const { selectedTask } = useSelector((state) => state.tasks.projects.projectlist);
   const survey = new Model(surveyJson);
-  // survey.showNavigationButtons = false;
   const options = [
     { value: "uploadfile", label: "Upload File" },
     { value: "googledrive", label: "Google Drive" },
@@ -199,79 +196,9 @@ function UpdateSurvey({ setFile, onSubmit }) {
     } else {
     }
   }
-  async function UpdateData() {
-    survey.data = {
-      TaskName: selectedTask && selectedTask?.taskname,
-      taskdescription: selectedTask && selectedTask?.rr_Desc,
-      taskstatus: selectedTask && selectedTask?.current_State,
-      taskpriorties: selectedTask && selectedTask?.priority_Desc,
-      storypoint: selectedTask && selectedTask?.Story_Point,
-      shortdescription: selectedTask && selectedTask?.rr_Short_Desc,
-      Start_DT: selectedTask && selectedTask?.Start_DT,
-      start_TS: selectedTask && selectedTask?.start_TS,
-      Due_TS: selectedTask && selectedTask?.Due_TS,
-      due_DT: selectedTask && selectedTask?.due_DT,
-    };
-    survey?.onComplete.add((getData, options) => {
-      console.log(getData.data);
-      socket.emit("updateTask", {
-        id: selectedTask && selectedTask.id,
-        tasksname: getData.data.TaskName,
-        tasksdescription: getData.data.TaskDescription,
-        tasksstatus: getData.data.TaskStatus,
-        taskproject: getData.data.taskproject,
-        // usercode: user?.user_Code,
-        tenantcode: 10181,
-        typecode: 1001,
-        formcode: 123,
-        shortdescription: getData.data.projectshortname,
-        projectscript: [{}],
-        projectconfig: [{}],
-        projectoptions: [{}],
-        projectthemes: [{}],
-        projectremark: [{}],
-        formscript: [{}],
-        startdate: getData.data.startdate,
-        starttime: getData.data.starttime,
-        duedate: getData.data.duedate,
-        duettime: getData.data.duettime,
-      });
-      socket.on("task-message", () => {
-        socket.emit("getTask", true);
-        socket.on("receive-task", (data) => {
-          console.log(data);
-          dispatch(settasklist(data.data));
-          dispatch(setEditModal(false));
-        });
-      });
-    });
-  }
+
   useEffect(() => {
-    async function CheckDrive() {
-      if (buttonvalue == "googledrive") {
-        if (!localStorage.getItem("gdrivetoken")) {
-          alert("Google Drive is not connected");
-          setdisabled(true);
-        } else {
-          setdisabled(false);
-        }
-      } else if (buttonvalue == "dropbox") {
-        if (!localStorage.getItem("dropboxtoken")) {
-          alert("DropBox is not connected");
-          setdisabled(true);
-        } else {
-          setdisabled(false);
-        }
-      } else if (buttonvalue == "onedrive") {
-        if (!localStorage.getItem("onedrivetoken")) {
-          alert("OneDrive is not connected");
-          setdisabled(true);
-        } else {
-          setdisabled(false);
-        }
-      }
-    }
-    async function UpdateData(){
+    async function UpdateData() {
       survey.data = {
         TaskName: selectedTask && selectedTask?.taskname,
         taskdescription: selectedTask && selectedTask?.rr_Desc,
@@ -318,20 +245,41 @@ function UpdateSurvey({ setFile, onSubmit }) {
         });
       });
     }
-    UpdateData()
+
+    async function CheckDrive() {
+      if (buttonvalue == "googledrive") {
+        if (!localStorage.getItem("gdrivetoken")) {
+          alert("Google Drive is not connected");
+          setdisabled(true);
+        } else {
+          setdisabled(false);
+        }
+      } else if (buttonvalue == "dropbox") {
+        if (!localStorage.getItem("dropboxtoken")) {
+          alert("DropBox is not connected");
+          setdisabled(true);
+        } else {
+          setdisabled(false);
+        }
+      } else if (buttonvalue == "onedrive") {
+        if (!localStorage.getItem("onedrivetoken")) {
+          alert("OneDrive is not connected");
+          setdisabled(true);
+        } else {
+          setdisabled(false);
+        }
+      }
+    }
+    UpdateData();
     CheckDrive();
     // uploadFile()
-  }, [buttonvalue]);
-
+  }, [survey, buttonvalue]);
   return (
     <div className="h-400">
       <>
-        <Survey
-          model={survey}
-          
-        />
+        <Survey model={survey} />
 
-        <div className="grid grid-rows-1 grid-flow-col gap-1 ">
+        <div className="grid grid-rows-1 grid-flow-col gap-1 h-40">
           <div>
             <h3 className="text-sm">Attachment</h3>{" "}
           </div>
@@ -344,22 +292,18 @@ function UpdateSurvey({ setFile, onSubmit }) {
               className="w-1/2"
               placeholder="Add"
               options={options}
-              // arrowClassName={"arrowclass"}
+              arrowClassName={"arrowclass"}
             />
           </div>
         </div>
 
         {
-          <div>
+          <>
+            <h4 className="p-4">Upload File to Google Drive</h4>
             <Uploader onChange={(e) => uploadFile(e)} />
-          </div>
+          </>
         }
       </>
-      {/* <div style={{ textAlign: "center" }}>
-        <Button size="lg" variant="solid" onClick={() => UpdateData()}>
-          Update Task
-        </Button>
-      </div> */}
     </div>
   );
 }
