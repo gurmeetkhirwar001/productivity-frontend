@@ -65,8 +65,8 @@ const BoardCard = forwardRef((props, ref) => {
 	  }
 	  ];
 	const onCardClick = () => {
+		dispatch(setSelectedTask(data))
 		dispatch(setEditModal(true))
- 		dispatch(setSelectedTask(data))
 	}
 	console.log(data,"priority_Desc")
 	const labelss = authors.find((aut) => aut.name == data?.priority_Desc || aut.id == Number(data?.priority_Desc) )

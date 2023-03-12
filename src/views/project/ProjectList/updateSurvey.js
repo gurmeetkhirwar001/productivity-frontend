@@ -146,7 +146,8 @@ if (!self.alreadyRendered) {
 
 function UpdateSurvey({ setFile, onSubmit }) {
   const dispatch = useDispatch();
-  const { selectedTask } = useSelector((state) => state.tasks.projects.projectlist);
+  const { selectedTask } = useSelector((state) => state.tasks.projects);
+  console.log(selectedTask,"SELECTED")
   const survey = new Model(surveyJson);
   const options = [
     { value: "uploadfile", label: "Upload File" },
@@ -299,7 +300,7 @@ function UpdateSurvey({ setFile, onSubmit }) {
 
         {
           <>
-            <h4 className="p-4">Upload File to Google Drive</h4>
+            <h4 className="p-4">Upload File to Cloud Select From The DropDown </h4>
             <Uploader onChange={(e) => uploadFile(e)} />
           </>
         }
