@@ -55,7 +55,7 @@ export default function GoogleDriveFetch() {
     form.setAttribute('action', oauth2Endpoint);
   
     // Parameters to pass to OAuth 2.0 endpoint.
-    var params = {'client_id': process.env.REACT_APP_GOOGLE_DEV_CLIENT_ID,
+    var params = {'client_id': process.env.REACT_APP_NODE_ENV == "prod"? process.env.REACT_APP_CLIENT_ID: process.env.REACT_APP_GOOGLE_DEV_CLIENT_ID,
                   'redirect_uri': window.location.href,
                   'response_type': 'token',
                   'scope': 'https://www.googleapis.com/auth/drive',
@@ -106,9 +106,9 @@ if(window.location.href.includes("access_token")){
   localStorage.setItem("gdrivetoken",acc)
   setSignedInUser(true)
   // window.location.href = window.location.href.split("#")[0]
-  gapi.client.setAccessToken(
-    acc
-    );
+  // gapi.client.setAccessToken(
+  //   acc
+  //   );
 
 }
       //   updateSigninStatus(SignedinUser);
