@@ -246,6 +246,20 @@ function UpdateSurvey({ setFile, onSubmit }) {
     });
   }
   useEffect(() => {
+    async function setData(){
+      survey.data = {
+        TaskName: selectedTask && selectedTask?.taskname,
+        taskdescription: selectedTask && selectedTask?.rr_Desc,
+        taskstatus: selectedTask && selectedTask?.current_State,
+        taskpriorties: selectedTask && selectedTask?.priority_Desc,
+        storypoint: selectedTask && selectedTask?.Story_Point,
+        shortdescription: selectedTask && selectedTask?.rr_Short_Desc,
+        Start_DT: selectedTask && selectedTask?.Start_DT,
+        start_TS: selectedTask && selectedTask?.start_TS,
+        Due_TS: selectedTask && selectedTask?.Due_TS,
+        due_DT: selectedTask && selectedTask?.due_DT,
+      };
+    }
     async function CheckDrive() {
       if (buttonvalue == "googledrive") {
         if (!localStorage.getItem("gdrivetoken")) {
@@ -270,6 +284,7 @@ function UpdateSurvey({ setFile, onSubmit }) {
         }
       }
     }
+    setData()
     CheckDrive();
     // uploadFile()
   }, [buttonvalue]);
