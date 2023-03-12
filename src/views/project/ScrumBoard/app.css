@@ -21,12 +21,12 @@
 }
 .comment-input{
 position: fixed;
-    width: 45%;
+    width: 24%;
     top: 55%;
 }
 .comment-input1{
 position: fixed;
-    width: 45%;
+    width: 24%;
     top: 76%;
 }
 .comment-input1 input{
@@ -34,7 +34,7 @@ position: fixed;
 }
 .comment-input2{
   position: fixed;
-    width: 45%;
+    width: 24%;
     top: 33%;
 }
 .input2{

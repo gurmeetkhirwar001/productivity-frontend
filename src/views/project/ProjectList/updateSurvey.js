@@ -146,10 +146,11 @@ if (!self.alreadyRendered) {
 
 function UpdateSurvey({ setFile, onSubmit }) {
   const dispatch = useDispatch();
-  const { selectedTask } = useSelector((state) => state.tasks.projects);
-  console.log(selectedTask,"SELECTED")
+  const { selectedTask } = useSelector(
+    (state) => state.tasks.projects
+  );
   const survey = new Model(surveyJson);
-  survey.showNavigationButtons = false;
+  // survey.showNavigationButtons = false;
   const options = [
     { value: "uploadfile", label: "Upload File" },
     { value: "googledrive", label: "Google Drive" },
@@ -246,20 +247,6 @@ function UpdateSurvey({ setFile, onSubmit }) {
     });
   }
   useEffect(() => {
-    async function setData(){
-      survey.data = {
-        TaskName: selectedTask && selectedTask?.taskname,
-        taskdescription: selectedTask && selectedTask?.rr_Desc,
-        taskstatus: selectedTask && selectedTask?.current_State,
-        taskpriorties: selectedTask && selectedTask?.priority_Desc,
-        storypoint: selectedTask && selectedTask?.Story_Point,
-        shortdescription: selectedTask && selectedTask?.rr_Short_Desc,
-        Start_DT: selectedTask && selectedTask?.Start_DT,
-        start_TS: selectedTask && selectedTask?.start_TS,
-        Due_TS: selectedTask && selectedTask?.Due_TS,
-        due_DT: selectedTask && selectedTask?.due_DT,
-      };
-    }
     async function CheckDrive() {
       if (buttonvalue == "googledrive") {
         if (!localStorage.getItem("gdrivetoken")) {
@@ -284,7 +271,54 @@ function UpdateSurvey({ setFile, onSubmit }) {
         }
       }
     }
-    setData()
+    async function UpdateData(){
+      survey.data = {
+        TaskName: selectedTask && selectedTask?.taskname,
+        taskdescription: selectedTask && selectedTask?.rr_Desc,
+        taskstatus: selectedTask && selectedTask?.current_State,
+        taskpriorties: selectedTask && selectedTask?.priority_Desc,
+        storypoint: selectedTask && selectedTask?.Story_Point,
+        shortdescription: selectedTask && selectedTask?.rr_Short_Desc,
+        Start_DT: selectedTask && selectedTask?.Start_DT,
+        start_TS: selectedTask && selectedTask?.start_TS,
+        Due_TS: selectedTask && selectedTask?.Due_TS,
+        due_DT: selectedTask && selectedTask?.due_DT,
+      };
+      survey?.onComplete.add((getData, options) => {
+        console.log(getData.data);
+        socket.emit("updateTask", {
+          id: selectedTask && selectedTask.id,
+          tasksname: getData.data.TaskName,
+          tasksdescription: getData.data.TaskDescription,
+          tasksstatus: getData.data.TaskStatus,
+          taskproject: getData.data.taskproject,
+          // usercode: user?.user_Code,
+          tenantcode: 10181,
+          typecode: 1001,
+          formcode: 123,
+          shortdescription: getData.data.projectshortname,
+          projectscript: [{}],
+          projectconfig: [{}],
+          projectoptions: [{}],
+          projectthemes: [{}],
+          projectremark: [{}],
+          formscript: [{}],
+          startdate: getData.data.startdate,
+          starttime: getData.data.starttime,
+          duedate: getData.data.duedate,
+          duettime: getData.data.duettime,
+        });
+        socket.on("task-message", () => {
+          socket.emit("getTask", true);
+          socket.on("receive-task", (data) => {
+            console.log(data);
+            dispatch(settasklist(data.data));
+            dispatch(setEditModal(false));
+          });
+        });
+      });
+    }
+    UpdateData()
     CheckDrive();
     // uploadFile()
   }, [buttonvalue]);
@@ -294,7 +328,7 @@ function UpdateSurvey({ setFile, onSubmit }) {
       <>
         <Survey
           model={survey}
-          onCurrentPageChanged={() => console.log("hello")}
+          
         />
 
         <div className="grid grid-rows-1 grid-flow-col gap-1 ">
@@ -321,11 +355,11 @@ function UpdateSurvey({ setFile, onSubmit }) {
           </div>
         }
       </>
-      <div style={{ textAlign: "center" }}>
+      {/* <div style={{ textAlign: "center" }}>
         <Button size="lg" variant="solid" onClick={() => UpdateData()}>
           Update Task
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
