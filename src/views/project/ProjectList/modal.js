@@ -14,18 +14,28 @@ const Modal1 = ({open, setOpen}) => {
 
   return (
     <div>
-      <Modal open={createModal} onClose={() => dispatch(setCreateModal(false))} center>
-      {/* <div className='container'> */}
-        <div className='grid grid-cols-2'>
-          <div className='col-md-6'>
-            
-            <div className=''>
-
-            </div>
-            <Survey1 /></div>
-          <div className='col-md-6'>
-
-            nanan
+      <Modal
+        open={createModal}
+        onClose={() => dispatch(setCreateModal(false))}
+        center
+        styles={{
+          modal: {
+            width: "75%",
+            height: "80%",
+          },
+        }}
+      >
+        <h2
+          style={{
+            paddingLeft: 20,
+          }}
+        >
+          New Task
+        </h2>
+        {/* <div className='container'> */}
+        <div className="grid grid-cols-1">
+          <div className="col-md-12">
+            <Survey1 />
           </div>
         </div>
         {/* </div> */}

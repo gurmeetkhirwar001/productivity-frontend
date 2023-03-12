@@ -6,7 +6,8 @@ import { socket } from "utils/socketIO";
 import { useDispatch, useSelector } from "react-redux";
 import { setCreateModal, settasklist } from "store/tasks/project.slice";
 import { DefaultBody, encryptMessage } from "utils/common";
-
+import { Button } from "components/ui";
+import "index.css";
 const surveyJson = {
   elements: [
     {
@@ -27,10 +28,10 @@ const surveyJson = {
       title: "Task Status",
       isRequired: true,
       choices: [
-        { text: "TODO", value: 'To Do' },
-        { text: "INPROGRESS", value: 'In Progress' },
-        { text: "QA", value: 'Qa' },
-        { text: "COMPLETED", value: 'Completed' },
+        { text: "TODO", value: "To Do" },
+        { text: "INPROGRESS", value: "In Progress" },
+        { text: "QA", value: "Qa" },
+        { text: "COMPLETED", value: "Completed" },
       ],
     },
     {
@@ -91,96 +92,111 @@ function Survey1({ setOpen }) {
   const survey = new Model(surveyJson);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const clss = survey.cssClasses;
 
-  useEffect(() => {
-    async function submitData() {
-      survey?.onComplete.add((senderData, options) => {
-        console.log(senderData.data);
-        var d = new Date();
-const hours = d.getHours(); // => 9
-const minutes = d.getMinutes(); // =>  30
-const seconds= d.getSeconds();
-        const body = {
+  survey.showNavigationButtons = false;
+  async function submitData() {
+    survey?.onComplete.add((senderData, options) => {
+      console.log(senderData.data);
+      var d = new Date();
+      const hours = d.getHours(); // => 9
+      const minutes = d.getMinutes(); // =>  30
+      const seconds = d.getSeconds();
+      const body = {
+        ...DefaultBody,
+        data: {
+          usercode: user?.user_Code,
+          tenant_FK: 10181,
+          active: 1,
+          fm_Type_FK: 1001,
+          form_Mst_FK: 123,
+          requested_User: user?.user_Code,
+          assign_User_FK: user?.user_Code,
+          added_User: user?.user_Code,
+          updt_User: user?.user_Code,
+          current_State: senderData.data.taskstatus,
+          priority_Desc: senderData.data.taskpriorties,
+          Story_Point: senderData.data.storypoint,
+          rr_Desc: senderData.data.taskdescription,
+          rr_Short_Desc: senderData.data.shortdescription,
+          Start_DT: senderData.data.Start_DT,
+          start_TS: senderData.data.Start_TS,
+          Due_TS: senderData.data.Due_TS,
+          due_DT: senderData.data.due_DT,
+          added_TS: Date.now(),
+          rr_URL: window.location.href,
+          pm_FK: localStorage.getItem("projectcode"),
+          rr_Date: Date.now(),
+          added_TS: `${hours}:${minutes}:${seconds}`,
+          updt_TS: `${hours}:${minutes}:${seconds}`,
+          rr_Script: [
+            {
+              taskname: senderData.data.taskName,
+              current_State: senderData.data.taskstatus,
+              priority_Desc: senderData.data.taskpriorties,
+              Story_Point: senderData.data.storypoint,
+              rr_Desc: senderData.data.taskdescription,
+              rr_Short_Desc: senderData.data.shortdescription,
+              Start_DT: senderData.data.startdate,
+              start_TS: senderData.data.starttime,
+              Due_TS: senderData.data.Due_TS,
+              due_DT: senderData.data.due_DT,
+            },
+          ],
+        },
+        usercode: user?.user_Code,
+        event: "taskadd",
+        action: "create",
+      };
+      const databody = encryptMessage(body);
+
+      socket.emit("createTask", {
+        body: databody,
+        token: localStorage.getItem("authtoken"),
+      });
+      socket.on("task-message", () => {
+        const body2 = {
           ...DefaultBody,
           data: {
             usercode: user?.user_Code,
-            tenant_FK: 10181,
-            active: 1,
-            fm_Type_FK: 1001,
-            form_Mst_FK: 123,
-            requested_User:user?.user_Code,
-            assign_User_FK:user?.user_Code,
-            added_User:user?.user_Code,
-            updt_User:user?.user_Code,
-            current_State: senderData.data.taskstatus,
-            priority_Desc: senderData.data.taskpriorties,
-            Story_Point: senderData.data.storypoint,
-            rr_Desc: senderData.data.taskdescription,
-            rr_Short_Desc: senderData.data.shortdescription,
-            Start_DT: senderData.data.Start_DT,
-            start_TS: senderData.data.Start_TS,
-            Due_TS: senderData.data.Due_TS,
-            due_DT: senderData.data.due_DT,
-            added_TS: Date.now(),
-            rr_URL: window.location.href,
-            pm_FK:localStorage.getItem("projectcode"),
-            rr_Date: Date.now(),
-            added_TS: `${hours}:${minutes}:${seconds}`,
-            updt_TS: `${hours}:${minutes}:${seconds}`,
-            rr_Script: [
-              {
-                taskname: senderData.data.taskName,
-                current_State: senderData.data.taskstatus,
-                priority_Desc: senderData.data.taskpriorties,
-                Story_Point: senderData.data.storypoint,
-                rr_Desc: senderData.data.taskdescription,
-                rr_Short_Desc: senderData.data.shortdescription,
-                Start_DT: senderData.data.startdate,
-                start_TS: senderData.data.starttime,
-                Due_TS: senderData.data.Due_TS,
-                due_DT: senderData.data.due_DT,
-              },
-            ],
+            tenantcode: 10181,
+            projectcode: localStorage.getItem("projectcode"),
           },
           usercode: user?.user_Code,
-          event: "taskadd",
-          action: "create",
+          event: "userprojecttasklist",
+          action: "get",
         };
-        const databody = encryptMessage(body);
+        const databody2 = encryptMessage(body2);
 
-        socket.emit("createTask", {
-          body: databody,
+        socket.emit("getTask", {
+          body: databody2,
           token: localStorage.getItem("authtoken"),
         });
-        socket.on("task-message", () => {
-          const body2 = {
-            ...DefaultBody,
-            data: {
-              usercode: user?.user_Code,
-              tenantcode: 10181,
-              projectcode: localStorage.getItem("projectcode"),
-            },
-            usercode: user?.user_Code,
-            event: "userprojecttasklist",
-            action: "get",
-          };
-          const databody2 = encryptMessage(body2);
-
-          socket.emit("getTask", {
-            body: databody2,
-            token: localStorage.getItem("authtoken"),
-          });
-          socket.on("receive-task", (data) => {
-            console.log(data);
-            dispatch(settasklist(data.data));
-            dispatch(setCreateModal(false));
-          });
+        socket.on("receive-task", (data) => {
+          console.log(data);
+          dispatch(settasklist(data.data));
+          dispatch(setCreateModal(false));
         });
       });
-    }
-    submitData();
+    });
+  }
+  useEffect(() => {
+    // submitData();
   }, []);
-  return <Survey model={survey} />;
+  return (
+    <>
+      <Survey model={survey} />
+      <div
+        style={{
+          textAlign: "center",
+        }}
+      >
+        <Button size="lg" variant="solid" onClick={() => submitData()}>
+          Create Task
+        </Button>
+      </div>
+    </>
+  );
 }
 
 export default Survey1;
