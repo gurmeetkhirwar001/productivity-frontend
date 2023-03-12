@@ -14,7 +14,7 @@ const UpdateModal = ({open, setOpen}) => {
   const {editModal}=useSelector(state=>state.tasks.projects)
   return (
     <div>
-      <Modal  center>
+      {/* <Modal  center>
         <div className='grid grid-cols-2 gap-2'>
           <div>
 
@@ -24,7 +24,7 @@ const UpdateModal = ({open, setOpen}) => {
         </div>
       
       
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

@@ -16,6 +16,37 @@
   .arrowclass{
     display: none!important;
 }
+.comment{
+  position: relative;
+}
+.comment-input{
+position: fixed;
+    width: 45%;
+    top: 55%;
+}
+.comment-input1{
+position: fixed;
+    width: 45%;
+    top: 76%;
+}
+.comment-input1 input{
+  border: none;
+}
+.comment-input2{
+  position: fixed;
+    width: 45%;
+    top: 33%;
+}
+.input2{
+  border: none;
+  height: 2rem;
+  margin-bottom: .5rem;
+}
+.input2:focus{
+  border: none;
+  outline: none;
+  border-color: inherit;
+}
   @keyframes App-logo-spin {
     from {
       transform: rotate(0deg);

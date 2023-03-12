@@ -65,12 +65,11 @@ const Input = React.forwardRef((props, ref) => {
 
 	const inputDefaultClass = 'input'
 	const inputSizeClass = `input-${inputSize} h-${CONTROL_SIZES[inputSize]}`
-	const inputFocusClass = `focus:ring-${themeColor}-${primaryColorLevel} focus-within:ring-${themeColor}-${primaryColorLevel} focus-within:border-${themeColor}-${primaryColorLevel} focus:border-${themeColor}-${primaryColorLevel}`
+	// const inputFocusClass = `focus:outline-none`;
 	const inputWrapperClass = `input-wrapper ${prefix || suffix ? className : ''}`
 	const inputClass = classNames(
 		inputDefaultClass,
 		!textArea && inputSizeClass,
-		!isInvalid && inputFocusClass, 
 		(!prefix && !suffix ? className : ''),
 		disabled && 'input-disabled',
 		isInvalid && 'input-invalid',
