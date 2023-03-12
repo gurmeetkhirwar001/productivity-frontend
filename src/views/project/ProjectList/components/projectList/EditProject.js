@@ -85,8 +85,8 @@ function EditProject({setOpen}) {
                 });
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
-                    dispatch(setprojectList(data.data));
-                    dispatch(setEditProjectModal(false))
+                    dispatch(setprojectList(data));
+                    dispatch(setCloneModal(false))
                     });
                
                 

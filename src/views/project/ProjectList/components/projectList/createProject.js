@@ -115,7 +115,7 @@ function CreateProject({setOpen}) {
                 });
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
-                    dispatch(settasklist(data.data));
+                    dispatch(settasklist(data));
                     dispatch(setCreateModal(false))
                     });
                

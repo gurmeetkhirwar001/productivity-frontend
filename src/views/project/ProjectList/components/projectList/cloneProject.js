@@ -96,6 +96,7 @@ function CloneProject({setOpen}) {
                         projectscript:[{}],
                         projectconfig:[{}],
                         projectoptions:[{}],
+                        projectcode: selectedProject.projectcode,
                         projectthemes:[{}],
                         projectremark:[{}],
                         formscript:[{}],
@@ -131,8 +132,8 @@ function CloneProject({setOpen}) {
                 });
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
-                    dispatch(setprojectList(data.data));
-                    dispatch(setEditProjectModal(false))
+                    dispatch(setprojectList(data));
+                    dispatch(setCreateModal(false))
                     });
                
                 
