@@ -4,7 +4,7 @@ import { Survey } from 'survey-react-ui';
 import { useEffect } from 'react';
 import {socket} from "utils/socketIO"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCreateModal, setprojectList, setEditProjectModal,setCloneModal } from 'store/tasks/project.slice';
+import { setCreateModal, setprojectList, setEditProjectModal,setCloneModal, setEditModal } from 'store/tasks/project.slice';
 import { DefaultBody, encryptMessage } from "utils/common";
 
 import useProjectTask from 'utils/hooks/useProjectask';
@@ -13,47 +13,47 @@ const surveyJson = {
     name: "ProjectName",
     title: "Enter your Project Name:",
     type: "text",
-    isRequired: true
+    
   },
   {
     name: "projectshortname",
     title: "Enter your Project shortname:",
     type: "text",
-    isRequired: true
+    
   },
   {
     name: "projectremark",
     title: "Enter your Project Remark:",
     type: "text",
-    isRequired: true
+    
   },
   {
     "name": "startdate",
     "type": "text",
     "title": "Start Date of Project",
     "inputType": "date",
-    "isRequired": true
+    
   },
   {
     name: "starttime",
     "type": "text",
     "title": "Start time of Project",
     "inputType": "time",
-    "isRequired": true
+    
   },
   {
     name: "duedate",
     "type": "text",
     "title": "Due Date of Project",
     "inputType": "date",
-    "isRequired": true
+    
   },
   {
     name: "duetime",
     "type": "text",
     "title": "Due time of Project",
     "inputType": "time",
-    "isRequired": true
+    
   },
 
 
@@ -64,7 +64,7 @@ function CloneProject({setOpen}) {
     const {createProjectaction,UpdateProjectaction} = useProjectTask()
   const survey = new Model(surveyJson);
   const {user} = useSelector(state => state.auth)  
-  const { selectedProject } = useSelector((state) => state.tasks.projects);
+  const {  selectedProject  } = useSelector((state) => state.tasks.projects);
     console.log(selectedProject,"selectedProject")
   const dispatch=useDispatch()
     useEffect(() => {
@@ -133,7 +133,7 @@ function CloneProject({setOpen}) {
                 socket.on("receive-projects", (data) => {
                     console.log(data,"hahahqwer123456543234566543456")
                     dispatch(setprojectList(data));
-                    dispatch(setCreateModal(false))
+                    dispatch(setEditModal(false))
                     });
                
                 

@@ -29,7 +29,7 @@ function EditProject({setOpen}) {
   const survey = new Model(surveyJson);
   const {user} = useSelector(state => state.auth)  
   const { selectedProject } = useSelector((state) => state.tasks.projects);
-    console.log(selectedProject,"selectedProject")
+    console.log(selectedProject,"selectedProjectBccccccccccccc")
   const dispatch=useDispatch()
     useEffect(() => {
         survey.data = {

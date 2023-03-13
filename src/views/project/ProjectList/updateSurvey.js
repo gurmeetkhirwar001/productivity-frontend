@@ -223,6 +223,7 @@ function UpdateSurvey({ setFile, onSubmit }) {
           tenantcode: 10181,
           typecode: 1001,
           formcode: 123,
+	  projectcode: getData.data.projectcode,
           shortdescription: getData.data.projectshortname,
           projectscript: [{}],
           projectconfig: [{}],
@@ -230,10 +231,10 @@ function UpdateSurvey({ setFile, onSubmit }) {
           projectthemes: [{}],
           projectremark: [{}],
           formscript: [{}],
-          startdate: getData.data.startdate,
-          starttime: getData.data.starttime,
-          duedate: getData.data.duedate,
-          duettime: getData.data.duettime,
+          startdate: getData.data.Start_DT,
+          starttime: getData.data.start_TS,
+          duedate: getData.data.due_DT,
+          duettime: getData.data.Due_TS,
         });
         socket.on("task-message", () => {
           socket.emit("getTask", true);

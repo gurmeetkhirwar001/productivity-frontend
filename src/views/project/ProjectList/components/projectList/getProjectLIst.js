@@ -9,7 +9,7 @@ import {Navigate} from "react-router-dom"
  import { createTask,getTask,getProjects } from "./getData";
 import EditProject from './EditProject';
 import { connect } from 'react-redux';
-import {settasklist,setprojectList,setCreateModal,setEditProjectModal,setCloneModal} from "store/tasks/project.slice"
+import {settasklist,setprojectList,setCreateModal,setEditProjectModal,setCloneModal,setEditModal} from "store/tasks/project.slice"
 import CreateProjectModal from './projectModal';
 import {getProjectTypeList} from "store/tasks/project.slice" 
 import { DefaultBody, encryptMessage } from "utils/common";
@@ -55,7 +55,7 @@ class App extends React.Component {
     console.log(row,"row")
     return <Button variant="solid" size="sm" onClick={() =>{
       this.props.setEditProjectModal(row.data)
-      this.props.setCreateModal(true)
+      this.props.setEditModal(true)
 
     }
       // this.props.setCreateModal(true)}}>Edit</Button>
@@ -150,6 +150,7 @@ viewButtonRender = (row) => {
             </div>
           </div>
         </div>
+        <CreateProjectModal />
         <EditProjectModal />
         <CloneProjectModal />
       </div>
@@ -228,4 +229,4 @@ const mapStatetoprops = (state) => ({
 tasks: state.tasks.projects,
 user: state.auth.user
 })
-export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList,setEditProjectModal,setCloneModal})(withRouter(App));
+export default connect(mapStatetoprops,{settasklist,setprojectList,setCreateModal,getProjectTypeList,setEditModal,setEditProjectModal,setCloneModal})(withRouter(App));
