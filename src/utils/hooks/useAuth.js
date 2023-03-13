@@ -233,6 +233,7 @@ function useAuth() {
       const res = await dispatch(UpdateProfilePassword(data));
       console.log(res, "resss");
       if (res.payload.is_success == true) {
+        handleSignOut()
         return {
           status: "success",
           message: "User Updated SuccessFully",

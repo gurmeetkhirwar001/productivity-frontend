@@ -38,7 +38,7 @@ const validationSchema = Yup.object().shape({
     .max(12, "Too Long!")
     .required("User Name Required"),
   useremail: Yup.string().email("Invalid email").required("Email Required"),
-  usermobile: Yup.string(),
+  userphone: Yup.string(),
   userfirstname: Yup.string(),
   uselastname: Yup.string(),
   usermidname: Yup.string(),
@@ -95,10 +95,11 @@ const Profile = ({ data }) => {
   const { UpdateUserProfile, getUserP } = useAuth();
   console.log(data, "dadad");
   const onFormSubmit = async (values, setSubmitting) => {
+    console.log(values,"asdsads")
+    console.log(dob,"asdsads")
     const body = {
       ...DefaultBody,
       data: {
-        userdob: dob,
         ...values,
       },
       usercode: data.usercode,
@@ -124,6 +125,7 @@ const Profile = ({ data }) => {
       const databody2 = encryptMessage(body2);
       const ress = await getUserP({ body: databody2 });
       console.log(ress, "resss");
+      window.location.reload()
       if (ress.payload.is_success == true) {
         setSubmitting(false);
       }
@@ -169,24 +171,16 @@ const Profile = ({ data }) => {
                   prefix={<HiOutlineUserCircle className="text-xl" />}
                 />
               </FormRow>
-              <FormItem
-                label="DOB"
-                // invalid={errors.dob && touched.dob}
-                // errorMessage={errors.dob}
-              >
-                <Field name="start" placeholder="Date">
-                  {({ field, form }) => (
-                    <DatePicker
-                      field={field}
-                      form={form}
-                      value={field.value}
-                      onChange={(date) => {
-                        setDob(dayjs(date).format("YYYY-MM-DDTHH:mm:ss"));
-                      }}
-                    />
-                  )}
-                </Field>
-              </FormItem>
+              <FormRow name="userdob" label="Date oF Birth" {...validatorProps}>
+                <Field
+                  type="date"
+                  autoComplete="off"
+                  name="userdob"
+                  placeholder="Name"
+                  component={Input}
+                  prefix={<HiOutlineUserCircle className="text-xl" />}
+                />
+              </FormRow>
               <FormRow
                 name="userfirstname"
                 label="First name"
@@ -216,14 +210,14 @@ const Profile = ({ data }) => {
                 />
               </FormRow>
               <FormRow
-                name="userlastname"
+                name="uselastname"
                 label="Last Name"
                 {...validatorProps}
               >
                 <Field
                   type="text"
                   autoComplete="off"
-                  name="userlastname"
+                  name="uselastname"
                   placeholder="Last Name"
                   component={Input}
                   prefix={<HiOutlineUserCircle className="text-xl" />}
