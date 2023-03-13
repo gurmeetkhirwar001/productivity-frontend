@@ -146,7 +146,7 @@ if (!self.alreadyRendered) {
 
 function UpdateSurvey({ setFile, onSubmit }) {
   const dispatch = useDispatch();
-  const { selectedTask } = useSelector((state) => state.tasks.projects.projectlist);
+  const { selectedTask } = useSelector((state) => state.tasks.projects);
   const survey = new Model(surveyJson);
   const options = [
     { value: "uploadfile", label: "Upload File" },

@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-export var socket = io.connect("http://localhost:9000/socket", {
+export var socket = io.connect(process.env.REACT_APP_SOCKET_URL, {
   reconnect: true,
 });
 
